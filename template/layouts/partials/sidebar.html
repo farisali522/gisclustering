@@ -1,0 +1,88 @@
+<aside id="sidebar" class="shrink-0 w-72 bg-[#FAFAFA] border-r border-gray-100 flex flex-col h-[calc(100vh-5rem)] absolute lg:static z-40 bg-white shadow-2xl lg:shadow-none transition-all duration-300 ease-in-out transform -translate-x-full lg:translate-x-0">
+    <div class="py-10 px-6 flex-1 overflow-y-auto">        
+        <nav class="space-y-2">
+            <!-- Dashboard Overview -->
+            <a href="{% url 'dashboard' %}" 
+               class="flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 relative overflow-hidden group 
+               {% if request.resolver_match.url_name == 'dashboard' %}bg-maroon-900 text-gold-400 shadow-md cursor-default pointer-events-none{% else %}text-gray-500 hover:text-maroon-900 hover:bg-maroon-900/5{% endif %}">
+                {% if request.resolver_match.url_name == 'dashboard' %}
+                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-gold-400 rounded-l-xl lg:hidden"></div>
+                {% endif %}
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v10a2 2 0 01-2 2h-2a2 2 0 01-2-2v-10z"></path></svg>
+                <span class="text-sm font-semibold tracking-wide {% if request.resolver_match.url_name == 'dashboard' %}text-white{% endif %}">Dashboard Overview</span>
+            </a>
+
+            <!-- Clustering Atribut -->
+            <a href="{% url 'clustering-atribut' %}" 
+               class="flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 relative overflow-hidden group
+               {% if request.resolver_match.url_name == 'clustering-atribut' %}bg-maroon-900 text-gold-400 shadow-md cursor-default pointer-events-none{% else %}text-gray-500 hover:text-maroon-900 hover:bg-maroon-900/5{% endif %}">
+                {% if request.resolver_match.url_name == 'clustering-atribut' %}
+                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-gold-400 rounded-l-xl lg:hidden"></div>
+                {% endif %}
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                <span class="text-sm font-medium {% if request.resolver_match.url_name == 'clustering-atribut' %}text-white font-semibold{% endif %}">Clustering Atribut</span>
+            </a>
+
+            <!-- Normalisasi Z-Score (New) -->
+            <a href="{% url 'zscore-normalization' %}" 
+               class="flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 relative overflow-hidden group
+               {% if request.resolver_match.url_name == 'zscore-normalization' %}bg-maroon-900 text-gold-400 shadow-md cursor-default pointer-events-none{% else %}text-gray-500 hover:text-maroon-900 hover:bg-maroon-900/5{% endif %}">
+                {% if request.resolver_match.url_name == 'zscore-normalization' %}
+                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-gold-400 rounded-l-xl lg:hidden"></div>
+                {% endif %}
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                <span class="text-sm font-medium {% if request.resolver_match.url_name == 'zscore-normalization' %}text-white font-semibold{% endif %}">Normalisasi Z-Score</span>
+            </a>
+            
+            <!-- Validasi Modeling (K) -->
+            <a href="{% url 'clustering-validation' %}" 
+               class="flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 relative overflow-hidden group
+               {% if request.resolver_match.url_name == 'clustering-validation' %}bg-maroon-900 text-gold-400 shadow-md cursor-default pointer-events-none{% else %}text-gray-500 hover:text-maroon-900 hover:bg-maroon-900/5{% endif %}">
+                {% if request.resolver_match.url_name == 'clustering-validation' %}
+                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-gold-400 rounded-l-xl lg:hidden"></div>
+                {% endif %}
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                <span class="text-sm font-medium {% if request.resolver_match.url_name == 'clustering-validation' %}text-white font-semibold{% endif %}">Validasi Modeling (K)</span>
+            </a>
+            
+            <!-- Hasil Cluster -->
+            <a href="{% url 'clustering-results' %}" 
+               class="flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 relative overflow-hidden group
+               {% if request.resolver_match.url_name == 'clustering-results' %}bg-maroon-900 text-gold-400 shadow-md cursor-default pointer-events-none{% else %}text-gray-500 hover:text-maroon-900 hover:bg-maroon-900/5{% endif %}">
+                {% if request.resolver_match.url_name == 'clustering-results' %}
+                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-gold-400 rounded-l-xl lg:hidden"></div>
+                {% endif %}
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
+                <span class="text-sm font-medium {% if request.resolver_match.url_name == 'clustering-results' %}text-white font-semibold{% endif %}">Hasil Cluster</span>
+            </a>
+            
+            <!-- Laporan Geospasial (Pro) -->
+            <a href="{% url 'clustering-gis' %}" 
+               class="flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 relative overflow-hidden group
+               {% if request.resolver_match.url_name == 'clustering-gis' %}bg-maroon-900 text-gold-400 shadow-md cursor-default pointer-events-none{% else %}text-gray-500 hover:text-maroon-900 hover:bg-maroon-900/5{% endif %}">
+                {% if request.resolver_match.url_name == 'clustering-gis' %}
+                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-gold-400 rounded-l-xl lg:hidden"></div>
+                {% endif %}
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2 2 2 0 012 2v.65M20 10.5a2 2 0 01-2 2H16.11a2 2 0 00-1.66.9l-.15.22a2 2 0 01-1.63.88h-1.22A2 2 0 009.6 18.28l-.1.32a2 2 0 01-.84 1.14l-1.14.73A2 2 0 016.36 21H5.16a2 2 0 01-1.63-.84l-1.07-1.42A2 2 0 012.1 17.5V17m18-6.5a2 2 0 01-2-2v-1a2 2 0 00-2-2H17"></path></svg>
+                <span class="text-sm font-medium {% if request.resolver_match.url_name == 'clustering-gis' %}text-white font-semibold{% endif %}">Clustering GIS</span>
+            </a>
+
+            <div class="py-4"></div> <!-- Spacer -->
+
+            {% if request.user.is_superuser %}
+            <a href="/admin/" class="flex items-center gap-4 px-4 py-3.5 text-gray-500 hover:text-maroon-900 hover:bg-maroon-900/5 rounded-xl transition-all duration-200">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                <span class="text-sm font-medium">Manajemen Data</span>
+            </a>
+            {% endif %}
+        </nav>
+    </div>
+    
+    <div class="px-8 py-6 border-t border-gray-100">
+        <div class="p-4 bg-gradient-to-br from-maroon-900 to-maroon-800 rounded-2xl relative overflow-hidden">
+            <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-gold-400 rounded-full opacity-20 filter blur-xl"></div>
+            <p class="text-white text-xs font-medium mb-1 relative z-10">Bantuan Teknis?</p>
+            <p class="text-gold-400 text-[10px] relative z-10">Hubungi IT Support Divisi</p>
+        </div>
+    </div>
+</aside>

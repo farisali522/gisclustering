@@ -1,0 +1,100 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Masuk - Administrator{% endblock %}
+
+{% block content %}
+<div class="fixed inset-0 -z-10 bg-white">
+    <div class="absolute inset-0 bg-gradient-to-tr from-white/90 via-white/40 to-white/90 backdrop-blur-[2px] z-10"></div>
+    <img src="/media/west_java_map_bg.png" class="w-full h-full object-cover grayscale-[30%] opacity-40">
+</div>
+
+<div class="min-h-full flex items-center justify-center p-6 relative z-10">
+    <div class="max-w-md w-full">
+        <!-- Logo & Title -->
+        <div class="text-center mb-10">
+            <h2 class="text-4xl font-serif font-black text-gray-900 mb-2 leading-none">
+                Web<span class="text-maroon-900">GIS</span>
+                <span class="block text-[10px] font-sans font-black text-gray-400 uppercase tracking-[0.4em] mt-2 opacity-80">Data Multi Pemilu</span>
+            </h2>
+        </div>
+
+        <!-- Login Card -->
+        <div class="bg-white p-10 rounded-3xl shadow-2xl shadow-maroon-900/5 border border-gray-100 relative overflow-hidden">
+            <!-- Decorative accent -->
+            <div class="absolute top-0 right-0 w-32 h-32 bg-gold-400 opacity-5 rounded-bl-full"></div>
+            
+            <form method="POST" class="space-y-6 relative z-10" autocomplete="off">
+                {% csrf_token %}
+                
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="p-4 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm font-medium flex items-center gap-3">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">Username</label>
+                    <input type="text" name="username" required autocomplete="username"
+                        class="w-full px-5 py-4 rounded-2xl bg-gray-50 border border-transparent focus:bg-white focus:border-maroon-900 focus:ring-4 focus:ring-maroon-900/5 transition-all outline-none text-gray-800 placeholder-gray-300"
+                        placeholder="username">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">Password</label>
+                    <input type="password" id="passwordInput" name="password" required autocomplete="new-password"
+                        class="w-full px-5 py-4 rounded-2xl bg-gray-50 border border-transparent focus:bg-white focus:border-maroon-900 focus:ring-4 focus:ring-maroon-900/5 transition-all outline-none text-gray-800 placeholder-gray-300"
+                        placeholder="••••••••">
+                    <div class="mt-3 flex justify-end">
+                        <label class="flex items-center gap-2 cursor-pointer group">
+                            <input type="checkbox" id="togglePassword" class="w-4 h-4 rounded border-gray-300 text-maroon-900 focus:ring-maroon-900/20 transition-all">
+                            <span class="text-[10px] font-bold text-gray-400 group-hover:text-maroon-900 transition-colors uppercase tracking-widest">Lihat Password</span>
+                        </label>
+                    </div>
+                </div>
+
+                <script>
+                    document.getElementById('togglePassword')?.addEventListener('change', function() {
+                        const input = document.getElementById('passwordInput');
+                        if (input) input.type = this.checked ? 'text' : 'password';
+                    });
+                </script>
+
+                <div class="flex items-center justify-between py-2">
+                    <label class="flex items-center gap-2 cursor-pointer group">
+                        <input type="checkbox" class="w-5 h-5 rounded border-gray-200 text-maroon-900 focus:ring-maroon-900/20 transition-all">
+                        <span class="text-sm text-gray-500 group-hover:text-gray-700 transition-colors">Ingat Sesi Ini</span>
+                    </label>
+                </div>
+
+                <button type="submit" 
+                    class="w-full py-4 bg-maroon-900 text-gold-400 font-bold rounded-2xl shadow-xl shadow-maroon-900/20 hover:bg-maroon-800 hover:-translate-y-0.5 active:translate-y-0 transition-all">
+                    Autentikasi Sekarang
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block navbar %}{% endblock %}
+{% block sidebar %}{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Full height for login page since navbar/sidebar are hidden */
+    .flex-1.overflow-hidden { height: 100vh !important; }
+    body { overflow-y: auto; background-color: #fff; }
+    /* Fix Autofill styling */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover, 
+    input:-webkit-autofill:focus, 
+    input:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 40px #f9fafb inset !important; /* Match your bg-gray-50 */
+        -webkit-text-fill-color: #111827 !important;
+        transition: background-color 5000s ease-in-out 0s;
+    }
+</style>
+{% endblock %}

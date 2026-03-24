@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebGIS Clustering - Selamat Datang</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        maroon: { 900: '#3E0000', 800: '#5A0808', 700: '#800000' },
+                        gold: { 500: '#C5A059', 400: '#D4AF37' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-white font-sans flex flex-col items-center justify-center min-h-screen p-6 text-center overflow-hidden">
+    <!-- Map Background Overlay -->
+    <div class="absolute inset-0 -z-10 bg-white">
+        <div class="absolute inset-0 bg-gradient-to-tr from-white/80 via-white/40 to-white/80 backdrop-blur-[2px] z-10"></div>
+        <img src="/media/west_java_map_bg.png" 
+             class="w-full h-full object-cover grayscale-[30%] opacity-60 transform scale-100">
+    </div>
+
+    <main class="max-w-3xl relative z-20">
+        <h1 class="text-9xl font-black text-gray-900 mb-2 tracking-tighter mix-blend-multiply">
+            Web<span class="text-maroon-900">GIS</span>
+        </h1>
+        <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.8em] mb-20 opacity-80 leading-relaxed">
+            Data Multi Pemilu
+        </p>
+
+        <div class="flex flex-col items-center gap-12">
+            <!-- Vertical Line Decor -->
+            <div class="w-px h-24 bg-gradient-to-b from-transparent via-gray-200 to-transparent"></div>
+
+            <a href="{% url 'login' %}" 
+               class="group relative inline-flex items-center gap-3 px-14 py-5 bg-maroon-900 text-gold-400 font-black rounded-full shadow-2xl shadow-maroon-900/20 hover:bg-maroon-800 transition-all duration-300">
+                <span class="text-xs uppercase tracking-[0.2em]">Masuk ke Dashboard</span>
+                <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+            </a>
+        </div>
+    </main>
+
+    <p class="absolute bottom-10 text-[9px] font-bold text-gray-400 uppercase tracking-widest opacity-50">
+        &copy; 2026 WebGIS Clustering
+    </p>
+</body>
+</html>

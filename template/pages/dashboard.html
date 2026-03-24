@@ -1,0 +1,369 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Web GIS - Dashboard{% endblock %}
+
+{% block content %}
+<div class="max-w-[1200px] mx-auto p-8 lg:p-12">
+    <!-- Page Header -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+        <div>
+            <p class="text-xs font-bold text-maroon-900 tracking-wider uppercase mb-1 opacity-60">Pusat Informasi</p>
+            <h1 class="text-3xl lg:text-4xl font-serif font-black text-gray-900 leading-tight">Executive <span class="text-maroon-900">Overview</span></h1>
+        </div>
+        
+        <!-- Dashboard Party Selector -->
+        <form method="GET" action="{% url 'dashboard' %}" class="flex items-center gap-3">
+            <div class="relative group">
+                <select name="partai_utama" onchange="this.form.submit()" 
+                        class="appearance-none bg-white border border-gray-200 text-[11px] font-black uppercase text-gray-600 px-10 py-2.5 rounded-2xl shadow-sm focus:ring-2 focus:ring-maroon-900/20 focus:border-maroon-900 transition-all cursor-pointer">
+                    {% for p in daftar_partai %}
+                        <option value="{{ p.id }}" {% if selected_party.id == p.id %}selected{% endif %}>
+                            {{ p.nama_partai|upper }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <div class="absolute left-4 top-1/2 -translate-y-1/2">
+                    {% if selected_party.logo_partai %}
+                        <img src="{{ selected_party.logo_partai.url }}" class="w-4 h-4 object-contain">
+                    {% else %}
+                        <div class="w-4 h-4 rounded-full bg-maroon-900 text-gold-400 flex items-center justify-center text-[8px] font-bold">{{ selected_party.no_urut_partai }}</div>
+                    {% endif %}
+                </div>
+                <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                    <svg class="w-3 h-3 text-gray-400 group-hover:text-maroon-900 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+            </div>
+            <div class="inline-flex items-center gap-2 bg-white px-5 py-2.5 rounded-2xl border border-gray-100 shadow-sm text-[10px] font-bold text-gray-500">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                SYNC: {% now "d M Y" %}
+            </div>
+            <a href="{% url 'export-dashboard-excel' %}?partai_utama={{ selected_party.id }}" class="inline-flex items-center gap-2 bg-green-50 text-green-700 hover:bg-green-100 px-5 py-2.5 rounded-2xl border border-green-100 shadow-sm text-[10px] font-bold transition-all">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                EXPORT XLS
+            </a>
+        </form>
+    </div>
+
+    <!-- Executive Summary: Performa Strategis -->
+    <div class="mb-10 animate-fade-in space-y-12">
+        <!-- Section 1: Performa Pileg -->
+        <div>
+            <div class="flex items-center gap-3 mb-6">
+                <div class="h-px flex-1 bg-gradient-to-r from-transparent via-maroon-200 to-transparent"></div>
+                <div class="flex items-center gap-3 px-4 py-1.5 bg-maroon-50/50 rounded-full border border-maroon-100/50 shadow-sm">
+                    <h3 class="text-[10px] font-black uppercase tracking-[0.4em] text-maroon-900">Performa Pileg ({{ selected_party.nama_partai }})</h3>
+                </div>
+                <div class="h-px flex-1 bg-gradient-to-r from-transparent via-maroon-200 to-transparent"></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Pileg RI Card -->
+                <div class="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-blue-900/5 rounded-bl-full -mr-10 -mt-10 group-hover:scale-110 transition-transform"></div>
+                    <div class="flex justify-between items-start mb-4">
+                        <p class="text-[10px] font-bold text-blue-900 uppercase tracking-widest flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-blue-900"></span> Pileg RI
+                        </p>
+                        <div class="text-right">
+                            <span class="block text-lg font-black text-blue-900 leading-none">{{ recap_perc.ri }}%</span>
+                            <span class="text-[8px] font-bold text-gray-400 uppercase tracking-tighter">Rekap Nasional</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center p-2 border border-gray-100 relative">
+                            {% if selected_party.logo_partai %}
+                                <img src="{{ selected_party.logo_partai.url }}" class="w-full h-full object-contain">
+                            {% else %}
+                                <div class="w-full h-full rounded bg-blue-900 text-gold-400 flex items-center justify-center text-xs font-bold">{{ selected_party.no_urut_partai }}</div>
+                            {% endif %}
+                            <span class="absolute -top-1 -right-1 w-5 h-5 bg-blue-900 text-white text-[8px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm">{{ selected_party.no_urut_partai }}</span>
+                        </div>
+                        <div class="min-w-0">
+                            <h4 class="text-xs font-bold text-gray-900 truncate">Dewan Perwakilan Rakyat RI</h4>
+                            <div class="flex items-center gap-1.5 mt-1">
+                                <svg class="w-3 h-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                <span class="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">Level Nasional</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pileg Prov Card -->
+                <div class="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-indigo-900/5 rounded-bl-full -mr-10 -mt-10 group-hover:scale-110 transition-transform"></div>
+                    <div class="flex justify-between items-start mb-4">
+                        <p class="text-[10px] font-bold text-indigo-900 uppercase tracking-widest flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-indigo-900"></span> Pileg Prov
+                        </p>
+                        <div class="text-right">
+                            <span class="block text-lg font-black text-indigo-900 leading-none">{{ recap_perc.prov }}%</span>
+                            <span class="text-[8px] font-bold text-gray-400 uppercase tracking-tighter">Rekap Provinsi</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center p-2 border border-gray-100 relative">
+                            {% if selected_party.logo_partai %}
+                                <img src="{{ selected_party.logo_partai.url }}" class="w-full h-full object-contain">
+                            {% else %}
+                                <div class="w-full h-full rounded bg-indigo-900 text-gold-400 flex items-center justify-center text-xs font-bold">{{ selected_party.no_urut_partai }}</div>
+                            {% endif %}
+                            <span class="absolute -top-1 -right-1 w-5 h-5 bg-indigo-900 text-white text-[8px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm">{{ selected_party.no_urut_partai }}</span>
+                        </div>
+                        <div class="min-w-0">
+                            <h4 class="text-xs font-bold text-gray-900 truncate">DPRP / DPRD Provinsi</h4>
+                            <div class="flex items-center gap-1.5 mt-1">
+                                <svg class="w-3 h-3 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2 2 2 0 012 2v.65M20 10.5a2 2 0 01-2 2H16.11a2 2 0 00-1.66.9l-.15.22a2 2 0 01-1.63.88h-1.22A2 2 0 009.6 18.28l-.1.32a2 2 0 01-.84 1.14l-1.14.73A2 2 0 016.36 21H5.16a2 2 0 01-1.63-.84l-1.07-1.42A2 2 0 012.1 17.5V17m18-6.5a2 2 0 01-2-2v-1a2 2 0 00-2-2H17"></path></svg>
+                                <span class="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">Level Regional</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pileg Kokab Card -->
+                <div class="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-cyan-900/5 rounded-bl-full -mr-10 -mt-10 group-hover:scale-110 transition-transform"></div>
+                    <div class="flex justify-between items-start mb-4">
+                        <p class="text-[10px] font-bold text-cyan-900 uppercase tracking-widest flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-cyan-900"></span> Pileg Kokab
+                        </p>
+                        <div class="text-right">
+                            <span class="block text-lg font-black text-cyan-900 leading-none">{{ recap_perc.kokab }}%</span>
+                            <span class="text-[8px] font-bold text-gray-400 uppercase tracking-tighter">Rekap Kab/Kota</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center p-2 border border-gray-100 relative">
+                            {% if selected_party.logo_partai %}
+                                <img src="{{ selected_party.logo_partai.url }}" class="w-full h-full object-contain">
+                            {% else %}
+                                <div class="w-full h-full rounded bg-cyan-900 text-gold-400 flex items-center justify-center text-xs font-bold">{{ selected_party.no_urut_partai }}</div>
+                            {% endif %}
+                            <span class="absolute -top-1 -right-1 w-5 h-5 bg-cyan-900 text-white text-[8px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm">{{ selected_party.no_urut_partai }}</span>
+                        </div>
+                        <div class="min-w-0">
+                            <h4 class="text-xs font-bold text-gray-900 truncate">DPRD Kabupaten/Kota</h4>
+                            <div class="flex items-center gap-1.5 mt-1">
+                                <svg class="w-3 h-3 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                <span class="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">Level Lokal</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Koalisi Kontestasi -->
+        <div>
+            <div class="flex items-center gap-3 mb-6">
+                <div class="h-px flex-1 bg-gradient-to-r from-transparent via-maroon-200 to-transparent"></div>
+                <div class="flex items-center gap-3 px-4 py-1.5 bg-maroon-50/50 rounded-full border border-maroon-100/50">
+                    {% if selected_party.logo_partai %}
+                        <img src="{{ selected_party.logo_partai.url }}" class="w-5 h-5 object-contain">
+                    {% endif %}
+                    <h3 class="text-[10px] font-black uppercase tracking-[0.4em] text-maroon-900/60">Koalisi Kontestasi ({{ selected_party.nama_partai }})</h3>
+                </div>
+                <div class="h-px flex-1 bg-gradient-to-r from-transparent via-maroon-200 to-transparent"></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Pilpres Card -->
+                <div class="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-maroon-900/5 rounded-bl-full -mr-10 -mt-10 group-hover:scale-110 transition-transform"></div>
+                    <div class="flex justify-between items-start mb-4">
+                        <p class="text-[10px] font-bold text-maroon-900 uppercase tracking-widest flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-maroon-900"></span> Pilpres
+                        </p>
+                        <div class="text-right">
+                            <span class="block text-lg font-black text-maroon-900 leading-none">{{ recap_perc.pilpres }}%</span>
+                            <span class="text-[8px] font-bold text-gray-400 uppercase tracking-tighter">Rekap Performa</span>
+                        </div>
+                    </div>
+                    {% if paslon_pilpres %}
+                    <div class="flex items-center gap-4">
+                        <div class="relative">
+                            {% if paslon_pilpres.foto_paslon %}
+                                <img src="{{ paslon_pilpres.foto_paslon.url }}" class="w-16 h-16 rounded-2xl object-cover border-2 border-white shadow-sm">
+                            {% else %}
+                                <div class="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-400 text-xl font-bold">{{ paslon_pilpres.no_urut_paslon }}</div>
+                            {% endif %}
+                            <span class="absolute -top-2 -right-2 w-6 h-6 bg-gold-400 text-maroon-900 text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white">{{ paslon_pilpres.no_urut_paslon }}</span>
+                        </div>
+                        <div class="min-w-0">
+                            <h4 class="text-xs font-bold text-gray-900 truncate">{{ paslon_pilpres.nama_capres }}</h4>
+                            <p class="text-[10px] text-gray-500 truncate">{{ paslon_pilpres.nama_cawapres }}</p>
+                        </div>
+                    </div>
+                    {% else %}
+                    <p class="text-xs text-gray-400 italic py-4">Data koalisi tidak ditemukan.</p>
+                    {% endif %}
+                </div>
+
+                <!-- Pilgub Card -->
+                <div class="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-maroon-900/5 rounded-bl-full -mr-10 -mt-10 group-hover:scale-110 transition-transform"></div>
+                    <div class="flex justify-between items-start mb-4">
+                        <p class="text-[10px] font-bold text-maroon-900 uppercase tracking-widest flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-maroon-900"></span> Pilgub
+                        </p>
+                        <div class="text-right">
+                            <span class="block text-lg font-black text-maroon-900 leading-none">{{ recap_perc.pilgub }}%</span>
+                            <span class="text-[8px] font-bold text-gray-400 uppercase tracking-tighter">Rekap Performa</span>
+                        </div>
+                    </div>
+                    {% if paslon_pilgub %}
+                    <div class="flex items-center gap-4">
+                        <div class="relative">
+                            {% if paslon_pilgub.foto_paslon %}
+                                <img src="{{ paslon_pilgub.foto_paslon.url }}" class="w-16 h-16 rounded-2xl object-cover border-2 border-white shadow-sm">
+                            {% else %}
+                                <div class="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-400 text-xl font-bold">{{ paslon_pilgub.no_urut_paslon }}</div>
+                            {% endif %}
+                            <span class="absolute -top-2 -right-2 w-6 h-6 bg-gold-400 text-maroon-900 text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white">{{ paslon_pilgub.no_urut_paslon }}</span>
+                        </div>
+                        <div class="min-w-0">
+                            <h4 class="text-xs font-bold text-gray-900 truncate">{{ paslon_pilgub.nama_cagub }}</h4>
+                            <p class="text-[10px] text-gray-500 truncate">{{ paslon_pilgub.nama_cawagub }}</p>
+                        </div>
+                    </div>
+                    {% else %}
+                    <p class="text-xs text-gray-400 italic py-4">Data koalisi tidak ditemukan.</p>
+                    {% endif %}
+                </div>
+
+                <!-- Pilwalbup Card (Interactive Candidates) -->
+                <div class="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm hover:shadow-md transition-all group overflow-visible relative">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-maroon-900/5 rounded-bl-full -mr-10 -mt-10 group-hover:scale-110 transition-transform"></div>
+                    <div class="flex justify-between items-start mb-4">
+                        <p class="text-[10px] font-bold text-maroon-900 uppercase tracking-widest flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-maroon-900"></span> Pilwalbup
+                        </p>
+                        <div class="text-right">
+                            <span class="block text-lg font-black text-maroon-900 leading-none">{{ recap_perc.walbup }}%</span>
+                            <span class="text-[8px] font-bold text-gray-400 uppercase tracking-tighter">Rekap Performa</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between gap-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-maroon-50 flex flex-col items-center justify-center text-maroon-900 border-2 border-white shadow-sm flex-shrink-0">
+                                <span class="text-base font-black">{{ count_walbup }}</span>
+                                <span class="text-[7px] font-bold uppercase">Paslon</span>
+                            </div>
+                            <div>
+                                <h4 class="text-[10px] font-bold text-gray-900">Pasangan Calon</h4>
+                                <p class="text-[8px] text-gray-500 uppercase">Koalisi Terdaftar</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Dropdown Toggle -->
+                        <div class="relative">
+                            <button id="walbup-list-toggle" class="px-3 py-2 bg-gray-50 hover:bg-maroon-900 hover:text-white text-gray-500 text-[10px] font-bold rounded-xl transition-all flex items-center gap-2 border border-gray-100 shadow-sm">
+                                Daftar
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            <!-- Dropdown Content (Absolute positioned) -->
+                            <div id="walbup-list-dropdown" class="absolute right-0 mt-3 w-72 bg-white border border-gray-100 rounded-3xl shadow-2xl py-3 hidden z-50 max-h-80 overflow-y-auto custom-scrollbar">
+                                <div class="px-4 py-2 border-b border-gray-50 mb-2">
+                                    <p class="text-[10px] font-black uppercase text-maroon-900 tracking-widest">Daftar Paslon Koalisi</p>
+                                </div>
+                                {% for p in semua_paslon_walbup %}
+                                <div class="px-4 py-3 hover:bg-maroon-50/50 transition-colors border-b border-gray-50 last:border-0">
+                                    <div class="flex items-center gap-3">
+                                        {% if p.foto_paslon %}
+                                            <img src="{{ p.foto_paslon.url }}" class="w-10 h-10 rounded-lg object-cover border border-white shadow-sm">
+                                        {% else %}
+                                            <div class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-300 text-xs font-bold">{{ forloop.counter }}</div>
+                                        {% endif %}
+                                        <div class="min-w-0">
+                                            <p class="text-[11px] font-bold text-gray-900 leading-tight">
+                                                {{ p.nama_calon }} - {{ p.nama_wakil|default:"-" }}
+                                            </p>
+                                            <p class="text-[9px] text-maroon-900 font-medium mt-0.5 uppercase tracking-tighter">{{ p.kab_kota.nama_kokab|default:"" }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <div class="px-4 py-6 text-center text-xs text-gray-400 italic">Data tidak ditemukan.</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script to handle executive dashboard interactions -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const walbupToggle = document.getElementById('walbup-list-toggle');
+            const walbupMenu = document.getElementById('walbup-list-dropdown');
+            if (walbupToggle && walbupMenu) {
+                walbupToggle.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    walbupMenu.classList.toggle('hidden');
+                });
+                window.addEventListener('click', (e) => {
+                    if (!walbupToggle.contains(e.target) && !walbupMenu.contains(e.target)) {
+                        walbupMenu.classList.add('hidden');
+                    }
+                });
+            }
+        });
+    </script>
+
+    <!-- Fast Access Module -->
+    <div class="mt-12 mb-8">
+        <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 border-b border-gray-100 pb-2">Akses Cepat Modul</h3>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+            
+            <!-- 1. Atribut -->
+            <a href="{% url 'clustering-atribut' %}?partai_utama={{ selected_party.id }}" class="group bg-white rounded-2xl p-4 border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all flex flex-col items-center text-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-maroon-50 text-maroon-900 group-hover:bg-maroon-900 group-hover:text-gold-400 flex items-center justify-center transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                </div>
+                <span class="text-[10px] font-bold text-gray-700 leading-tight">Clustering<br>Atribut</span>
+            </a>
+
+            <!-- 2. Z-Score -->
+            <a href="{% url 'zscore-normalization' %}?partai_utama={{ selected_party.id }}" class="group bg-white rounded-2xl p-4 border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all flex flex-col items-center text-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-maroon-50 text-maroon-900 group-hover:bg-maroon-900 group-hover:text-gold-400 flex items-center justify-center transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                </div>
+                <span class="text-[10px] font-bold text-gray-700 leading-tight">Normalisasi<br>Z-Score</span>
+            </a>
+
+            <!-- 3. Validasi (K) -->
+            <a href="{% url 'clustering-validation' %}?partai_utama={{ selected_party.id }}" class="group bg-white rounded-2xl p-4 border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all flex flex-col items-center text-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-maroon-50 text-maroon-900 group-hover:bg-maroon-900 group-hover:text-gold-400 flex items-center justify-center transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                </div>
+                <span class="text-[10px] font-bold text-gray-700 leading-tight">Validasi<br>Modeling</span>
+            </a>
+
+            <!-- 4. Hasil Cluster -->
+            <a href="{% url 'clustering-results' %}?partai_utama={{ selected_party.id }}" class="group bg-white rounded-2xl p-4 border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all flex flex-col items-center text-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-maroon-50 text-maroon-900 group-hover:bg-maroon-900 group-hover:text-gold-400 flex items-center justify-center transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
+                </div>
+                <span class="text-[10px] font-bold text-gray-700 leading-tight">Hasil<br>Cluster</span>
+            </a>
+
+            <!-- 5. Clustering GIS -->
+            <a href="{% url 'clustering-gis' %}?partai_utama={{ selected_party.id }}" class="group bg-white rounded-2xl p-4 border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all flex flex-col items-center text-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-maroon-50 text-maroon-900 group-hover:bg-maroon-900 group-hover:text-gold-400 flex items-center justify-center transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2 2 2 0 012 2v.65M20 10.5a2 2 0 01-2 2H16.11a2 2 0 00-1.66.9l-.15.22a2 2 0 01-1.63.88h-1.22A2 2 0 009.6 18.28l-.1.32a2 2 0 01-.84 1.14l-1.14.73A2 2 0 016.36 21H5.16a2 2 0 01-1.63-.84l-1.07-1.42A2 2 0 012.1 17.5V17m18-6.5a2 2 0 01-2-2v-1a2 2 0 00-2-2H17"></path></svg>
+                </div>
+                <span class="text-[10px] font-bold text-gray-700 leading-tight">Clustering<br>GIS Peta</span>
+            </a>
+
+            <!-- 6. Admin Panel -->
+            {% if request.user.is_superuser %}
+            <a href="/admin/" class="group bg-white rounded-2xl p-4 border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all flex flex-col items-center text-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gray-100 text-gray-600 group-hover:bg-gray-800 group-hover:text-white flex items-center justify-center transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                </div>
+                <span class="text-[10px] font-bold text-gray-700 leading-tight">Manajemen<br>Database</span>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

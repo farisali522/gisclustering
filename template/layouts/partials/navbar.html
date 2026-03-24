@@ -1,0 +1,36 @@
+<nav class="bg-white border-b border-gray-100 z-50 shadow-sm relative sticky top-0">
+    <div class="max-w-[1400px] mx-auto px-6 h-20 flex items-center justify-between">
+        <div class="flex items-center gap-6">
+            <!-- Toggle Button -->
+            <button id="sidebarToggle" class="text-gray-500 hover:text-maroon-900 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+            <div class="hidden sm:block text-xl font-serif font-bold tracking-wide text-maroon-900 ml-2 leading-tight">
+                WebGIS<span class="text-gold-500">Clustering</span>
+                <span class="block text-xs font-sans font-medium text-gray-500 tracking-normal mt-0.5">Data Multi Pemilu</span>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-6">
+            <div class="flex items-center gap-3">
+                <div class="text-right hidden sm:block">
+                    <p class="text-sm font-semibold text-gray-800">{{ request.user.username|default:"Administrator" }}</p>
+                    <p class="text-xs text-gold-500 font-medium">{{ request.user.groups.all|first }}</p>
+                    {% if request.user.is_superuser %}
+                        <p class="text-xs text-gold-500 font-medium">Administrator</p>
+                    {% else %}
+                        <p class="text-xs text-gold-500 font-medium">{{ request.user.groups.all|first }}</p>
+                    {% endif %}
+                </div>
+                <div class="w-10 h-10 rounded-full bg-maroon-900 text-white flex items-center justify-center font-bold font-serif shadow-inner border border-maroon-800">
+                    {{ request.user.username|default:"A"|make_list|first|upper }}
+                </div>
+            </div>
+            <div class="w-px h-8 bg-gray-200"></div>
+            <a href="{% url 'logout' %}" class="text-sm font-medium text-gray-500 hover:text-red-600 transition-colors flex items-center gap-2">
+                Keluar
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+            </a>
+        </div>
+    </div>
+</nav>

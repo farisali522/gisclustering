@@ -1,0 +1,203 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}WebGIS - Clustering Atribut{% endblock %}
+
+{% block extra_head %}
+<style>
+    .custom-scrollbar::-webkit-scrollbar {
+        height: 6px;
+        width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #C5A059;
+        border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #3E0000;
+    }
+    /* Fixed column shadow and smoothness */
+    .sticky-col-shadow {
+        box-shadow: 4px 0 8px -2px rgba(0,0,0,0.05);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-[1400px] mx-auto p-4 lg:p-6">
+    <!-- Header -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-6 p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-maroon-900 flex items-center justify-center text-gold-400 shadow-lg shadow-maroon-900/20">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+            </div>
+            <div>
+                <h1 class="text-xl font-black text-gray-900 uppercase">Clustering <span class="text-maroon-900">Atribut</span></h1>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Tahapan CRISP-DM 2 & 3 — Data Understanding & Data Preparation</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <div class="text-right hidden lg:block">
+                <p class="text-[9px] font-black text-gray-400 uppercase">Partai Utama</p>
+                <p class="text-xs font-bold text-gray-700 uppercase">{{ selected_party.nama_partai }}</p>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center border border-gray-100 p-1.5 shadow-sm">
+                {% if selected_party.logo_partai %}
+                    <img src="{{ selected_party.logo_partai.url }}" class="w-full h-full object-contain">
+                {% endif %}
+            </div>
+            <div class="h-8 w-px bg-gray-200 mx-2"></div>
+            <form class="flex items-center gap-3" method="GET" id="clustering-form">
+                <input type="hidden" name="partai_utama" value="{{ selected_party.id }}">
+                <button id="btn-rerun" type="submit" class="px-5 py-2 bg-maroon-900 text-gold-400 text-[10px] font-black rounded-xl hover:bg-maroon-800 transition-all flex items-center gap-2 shadow-sm">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    RE-RUN ANALYSIS
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Data Table Section (Optimized Placement) -->
+    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-8 border-b border-gray-50 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h2 class="text-xl font-bold text-gray-900 leading-tight">Preview Data Atribut</h2>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Found {{ total_kecamatan }} Kecamatan across 12 Dimensions</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <!-- Toggle Show All -->
+                <div class="flex bg-gray-100 p-1 rounded-xl mr-2">
+                    <a href="?partai_utama={{ selected_party.id }}&show_all=false" 
+                       class="px-3 py-1.5 text-[10px] font-bold rounded-lg transition-all {% if not show_all %}bg-white text-maroon-900 shadow-sm{% else %}text-gray-400 hover:text-gray-600{% endif %}">
+                        Paginated (20)
+                    </a>
+                    <a href="?partai_utama={{ selected_party.id }}&show_all=true" 
+                       class="px-3 py-1.5 text-[10px] font-bold rounded-lg transition-all {% if show_all %}bg-white text-maroon-900 shadow-sm{% else %}text-gray-400 hover:text-gray-600{% endif %}">
+                        Show All
+                    </a>
+                </div>
+                <div class="flex gap-2">
+                    <a href="{% url 'export-excel' %}?partai_utama={{ selected_party.id }}" class="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-xl text-[11px] font-bold hover:bg-green-100 transition-all border border-green-100 shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        Export Excel
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- Wrapper for horizontal scroll with custom scrollbar -->
+        <div class="overflow-x-auto custom-scrollbar overflow-y-visible relative border-t border-gray-50">
+            <table class="w-full text-left border-separate border-spacing-0 min-w-[1100px]">
+                <thead class="sticky top-0 z-30">
+                    <tr class="bg-gray-50">
+                        <th rowspan="2" class="sticky left-0 z-50 px-6 py-6 text-[10px] font-black uppercase tracking-widest text-gray-500 border-b border-r border-gray-100 bg-gray-50 sticky-col-shadow">Info Wilayah</th>
+                        <th colspan="6" class="px-4 py-3 text-center text-[10px] font-black uppercase tracking-[0.2em] text-maroon-900 border-b-2 border-maroon-900/20 bg-maroon-50/50">
+                            Performa Koalisi / Partai ({{ selected_party.nama_partai|upper }})
+                        </th>
+                        <th colspan="6" class="px-4 py-3 text-center text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 border-b-2 border-gray-200 bg-gray-100/30">
+                            Tingkat Partisipasi (Turnout)
+                        </th>
+                    </tr>
+                    <tr class="bg-gray-50">
+                        <!-- Sub-headers Performa -->
+                        <th class="px-3 py-3 text-[9px] font-bold uppercase text-maroon-800 border-b border-gray-100">Pilpres</th>
+                        <th class="px-3 py-3 text-[9px] font-bold uppercase text-maroon-800 border-b border-gray-100">RI</th>
+                        <th class="px-3 py-3 text-[9px] font-bold uppercase text-maroon-800 border-b border-gray-100">Prov</th>
+                        <th class="px-3 py-3 text-[9px] font-bold uppercase text-maroon-800 border-b border-gray-100">Kokab</th>
+                        <th class="px-3 py-3 text-[9px] font-bold uppercase text-maroon-800 border-b border-gray-100">Pilgub</th>
+                        <th class="px-3 py-3 text-[9px] font-bold uppercase text-maroon-800 border-b border-gray-100">Walbup</th>
+                        <!-- Sub-headers Partisipasi -->
+                        <th class="px-3 py-3 text-[9px] font-bold uppercase text-gray-500 border-b border-gray-100">Pilpres</th>
+                        <th class="px-3 py-3 text-[9px] font-bold uppercase text-gray-500 border-b border-gray-100">RI</th>
+                        <th class="px-3 py-3 text-[9px] font-bold uppercase text-gray-500 border-b border-gray-100">Prov</th>
+                        <th class="px-3 py-3 text-[9px] font-bold uppercase text-gray-500 border-b border-gray-100">Kokab</th>
+                        <th class="px-3 py-3 text-[9px] font-bold uppercase text-gray-500 border-b border-gray-100">Pilgub</th>
+                        <th class="px-3 py-3 text-[9px] font-bold uppercase text-gray-500 border-b border-gray-100">Walbup</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50">
+                    {% for d in kecamatan_data %}
+                    <tr class="hover:bg-gray-50/80 transition-colors group">
+                        <td class="sticky left-0 z-20 px-6 py-4 whitespace-nowrap bg-white group-hover:bg-gray-50 border-r border-gray-50 sticky-col-shadow">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-bold text-gray-800 tracking-tight">{{ d.kecamatan }}</span>
+                                <span class="text-[9px] text-gray-400 font-mono tracking-tighter">{{ d.kab_kota }} | {{ d.kode }}</span>
+                            </div>
+                        </td>
+                        
+                        <!-- 6 Kolom Performa -->
+                        <td class="px-3 py-4 text-xs font-black text-maroon-900 bg-maroon-50/10">{{ d.perf_pilpres|floatformat:2 }}%</td>
+                        <td class="px-3 py-4 text-xs font-bold text-maroon-800">{{ d.perf_ri|floatformat:2 }}%</td>
+                        <td class="px-3 py-4 text-xs font-bold text-maroon-800">{{ d.perf_prov|floatformat:2 }}%</td>
+                        <td class="px-3 py-4 text-xs font-bold text-maroon-800">{{ d.perf_kokab|floatformat:2 }}%</td>
+                        <td class="px-3 py-4 text-xs font-bold text-maroon-800">{{ d.perf_pilgub|floatformat:2 }}%</td>
+                        <td class="px-3 py-4 text-xs font-bold text-maroon-800">{{ d.perf_walbup|floatformat:2 }}%</td>
+
+                        <!-- 6 Kolom Partisipasi -->
+                        <td class="px-3 py-4 text-xs font-bold text-gray-500 bg-gray-50/30">{{ d.part_pilpres|floatformat:2 }}%</td>
+                        <td class="px-3 py-4 text-xs font-medium text-gray-400">{{ d.part_ri|floatformat:2 }}%</td>
+                        <td class="px-3 py-4 text-xs font-medium text-gray-400">{{ d.part_prov|floatformat:2 }}%</td>
+                        <td class="px-3 py-4 text-xs font-medium text-gray-400">{{ d.part_kokab|floatformat:2 }}%</td>
+                        <td class="px-3 py-4 text-xs font-medium text-gray-400">{{ d.part_pilgub|floatformat:2 }}%</td>
+                        <td class="px-3 py-4 text-xs font-medium text-gray-400">{{ d.part_walbup|floatformat:2 }}%</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="15" class="px-6 py-12 text-center text-gray-400 font-medium italic">Data belum teragregasi secara lengkap.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if is_paginated and kecamatan_data.has_other_pages %}
+        <div class="p-6 bg-gray-50/30 border-t border-gray-50 flex justify-between items-center">
+            <p class="text-xs text-gray-500 font-medium">Page {{ kecamatan_data.number }} of {{ kecamatan_data.paginator.num_pages }}</p>
+            <div class="flex gap-1">
+                {% if kecamatan_data.has_previous %}
+                    <a href="?partai_utama={{ selected_party.id }}&page={{ kecamatan_data.previous_page_number }}" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 text-gray-400 hover:text-maroon-900 transition-colors shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                    </a>
+                {% endif %}
+
+                {% for i in kecamatan_data.paginator.page_range %}
+                    {% if i > kecamatan_data.number|add:-3 and i < kecamatan_data.number|add:3 %}
+                        <a href="?partai_utama={{ selected_party.id }}&page={{ i }}" 
+                           class="w-8 h-8 flex items-center justify-center rounded-lg {% if kecamatan_data.number == i %}bg-maroon-900 text-gold-400 font-bold{% else %}bg-white border border-gray-200 text-gray-500 hover:text-maroon-900{% endif %} text-xs transition-all shadow-sm">
+                            {{ i }}
+                        </a>
+                    {% endif %}
+                {% endfor %}
+
+                {% if kecamatan_data.has_next %}
+                    <a href="?partai_utama={{ selected_party.id }}&page={{ kecamatan_data.next_page_number }}" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 text-gray-400 hover:text-maroon-900 transition-colors shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        <div class="p-6 bg-gray-50/30 border-t border-gray-50 flex justify-center">
+            <p class="text-[10px] font-black uppercase text-gray-400 tracking-widest italic">All {{ total_kecamatan }} regions are currently visible</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('clustering-form');
+            const btn = document.getElementById('btn-rerun');
+            
+            if (form && btn) {
+                form.addEventListener('submit', function() {
+                    btn.disabled = true;
+                    btn.classList.add('opacity-75', 'cursor-not-allowed');
+                    btn.innerHTML = `<svg class="animate-spin h-3 w-3 text-gold-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> LOADING...`;
+                });
+            }
+        });
+    </script>
+</div>
+{% endblock %}
