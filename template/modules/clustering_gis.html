@@ -145,7 +145,16 @@ document.addEventListener('DOMContentLoaded', function () {
     const mapData = JSON.parse(document.getElementById('map-data').textContent);
     const kokabData = JSON.parse(document.getElementById('kokab-data').textContent);
     const statsData = JSON.parse(document.getElementById('stats-data').textContent);
-    const clusterColors = ['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#8b5cf6','#ec4899','#14b8a6','#f43f5e'];
+    const clusterColors = {
+        0: '#6366f1', 1: '#ef4444', 2: '#10b981', 3: '#3b82f6', 4: '#eab308'
+    };
+    const clusterNames = {
+        0: 'Klaster Karakteristik Khusus',
+        1: 'Klaster Pertumbuhan Kritis',
+        2: 'Klaster Partisipasi Aktif',
+        3: 'Klaster Urban Dinamis',
+        4: 'Klaster Performa Konsisten'
+    };
 
     // Init Peta dengan Carto Light Base Map agar warna Data Menjolok
     const map = L.map('map').setView([-6.9175, 107.6191], 8);
@@ -230,7 +239,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // === FUNGSI GENERATOR POPUP 12 PARAMETER + LOGO ===
+    // === FUNGSI GENERATOR POPUP 13 PARAMETER + LOGO ===
     function getAvatar(url, fallbackText, color) {
         if (url && url.length > 5) {
             return `<img src="${url}" class="w-4 h-4 rounded-full object-cover border border-gray-200 shadow-sm shrink-0 bg-white p-px">`;
@@ -238,17 +247,27 @@ document.addEventListener('DOMContentLoaded', function () {
         return `<span class="w-4 h-4 rounded-full flex items-center justify-center text-[7px] font-black text-white shrink-0 shadow-sm" style="background-color: ${color || '#888'}">${fallbackText}</span>`;
     }
 
-    function renderPopup12Params(title, subtitle, statsObj, kabKotaName, clusterHtml) {
+    function renderPopup13Params(title, subtitle, statsObj, kabKotaName, clusterHtml, isKecamatan=false) {
         const names = statsData.names_info || {};
         const wFoto = (names.walbup_foto || {})[kabKotaName] || '';
         const warna = names.warna || '#888';
+
+        let ratioHtml = '';
+        if (isKecamatan) {
+            ratioHtml = `
+                <div class="flex justify-between items-center bg-indigo-50/50 py-1 px-1.5 rounded border border-indigo-100 col-span-2">
+                    <div class="flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg> <span class="text-[8.5px] font-bold text-indigo-700">Ratio Dukungan Gerindra Pilwalbup</span></div>
+                    <span class="text-[9px] font-black text-indigo-900">${(statsObj?.n_paslon_pilkada_kokab || 0).toFixed(1)}%</span>
+                </div>
+            `;
+        }
 
         return `
             <div class="text-center min-w-[240px] p-0.5">
                 <p class="text-[11px] font-black uppercase text-gray-900 leading-tight">${title}</p>
                 <p class="text-[8px] font-bold text-gray-500 mt-0.5 mb-2 uppercase tracking-widest">${subtitle}</p>
                 
-                <div class="text-[7.5px] font-bold text-gray-500 mb-1 text-left uppercase tracking-widest border-b border-gray-100 pb-0.5">Performa Utama</div>
+                <div class="text-[7.5px] font-bold text-gray-500 mb-1 text-left uppercase tracking-widest border-b border-gray-100 pb-0.5">Performa & Kompetisi</div>
                 <div class="grid grid-cols-2 gap-1 mb-2">
                     <div class="flex justify-between items-center bg-gray-50 py-1 px-1.5 rounded border border-gray-100">
                         <div class="flex items-center gap-1.5">${getAvatar(names.pilpres_foto, 'P', warna)} <span class="text-[8.5px] font-bold text-gray-600">Pres</span></div>
@@ -271,9 +290,10 @@ document.addEventListener('DOMContentLoaded', function () {
                         <span class="text-[9px] font-black text-maroon-900">${(statsObj?.perf_pilgub || 0).toFixed(1)}%</span>
                     </div>
                     <div class="flex justify-between items-center bg-gray-50 py-1 px-1.5 rounded border border-gray-100">
-                        <div class="flex items-center gap-1.5">${getAvatar(wFoto, 'W', warna)} <span class="text-[8.5px] font-bold text-gray-600">Wap</span></div>
+                        <div class="flex items-center gap-1.5">${getAvatar(wFoto, 'W', warna)} <span class="text-[8.5px] font-bold text-gray-600">Wkt</span></div>
                         <span class="text-[9px] font-black text-maroon-900">${(statsObj?.perf_walbup || 0).toFixed(1)}%</span>
                     </div>
+                    ${ratioHtml}
                 </div>
 
                 <div class="text-[7.5px] font-bold text-gray-500 mb-1 text-left uppercase tracking-widest border-b border-gray-100 pb-0.5">Partisipasi (Turnout)</div>
@@ -299,7 +319,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <div class="text-[8px] font-black text-blue-900">${(statsObj?.part_pilgub || 0).toFixed(1)}%</div>
                     </div>
                     <div class="bg-blue-50/50 border border-blue-100 py-1 rounded text-center">
-                        <div class="text-[7px] font-bold text-blue-600 uppercase">Wap</div>
+                        <div class="text-[7px] font-bold text-blue-600 uppercase">Wkt</div>
                         <div class="text-[8px] font-black text-blue-900">${(statsObj?.part_walbup || 0).toFixed(1)}%</div>
                     </div>
                 </div>
@@ -314,7 +334,7 @@ document.addEventListener('DOMContentLoaded', function () {
         let layer = L.geoJSON(item.geojson, {
             style: { color: '#ffffff', weight: 2, fillColor: '#1e3a8a', fillOpacity: 0.2, dashArray: '4' },
             onEachFeature: function(feat, l) {
-                const popupStats = renderPopup12Params(item.kab_kota, 'REKAP 12 PARAMETER KAB/KOTA', item.stats, item.kab_kota);
+                const popupStats = renderPopup13Params(item.kab_kota, 'REKAP 13 PARAMETER KAB/KOTA', item.stats, item.kab_kota);
                 
                 l.bindTooltip(`<div class="text-[11px] font-black text-blue-900 uppercase" style="text-shadow: 1px 1px 2px #fff, -1px -1px 2px #fff, 1px -1px 2px #fff, -1px 1px 2px #fff;">${item.kab_kota}</div>`, { permanent: true, direction: 'center', className: 'label-tooltip label-kokab' });
                 l.bindPopup(popupStats, { className: 'rounded-2xl', closeButton: false, autoPan: false });
@@ -338,7 +358,8 @@ document.addEventListener('DOMContentLoaded', function () {
     mapData.forEach(item => {
         if (item.geojson) {
             const clusterId = item.cluster !== null ? parseInt(item.cluster) : -1;
-            const color = clusterId >= 0 ? clusterColors[clusterId % clusterColors.length] : '#9ca3af'; // Abu-abu jika belum ada klaster
+            const color = clusterId >= 0 ? (clusterColors[clusterId] || '#9ca3af') : '#9ca3af'; 
+            const cName = clusterId >= 0 ? (clusterNames[clusterId] || 'Klaster ' + clusterId) : 'BELUM DIKLASTER';
             
             if (clusterId >= 0) clustersPresent.add(clusterId);
 
@@ -346,11 +367,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 style: { color: 'white', weight: 1, opacity: 1, fillColor: color, fillOpacity: 0.65 },
                 onEachFeature: function(feature, layer) {
                     const clusterBadge = `
-                        <span class="block w-full py-1 mt-1 rounded border border-black/10 text-white text-[9px] font-black shadow-sm" style="background-color: ${color}">
-                            ${clusterId >= 0 ? 'KLASTER ' + clusterId : 'BELUM DIKLASTER'}
+                        <span class="block w-full py-1 mt-1 rounded border border-black/10 text-white text-[8px] font-black shadow-sm uppercase px-1 leading-tight" style="background-color: ${color}">
+                            K${clusterId}: ${cName}
                         </span>`;
                     
-                    const popupContent = renderPopup12Params(item.kecamatan, item.kab_kota, item.stats, item.kab_kota, clusterBadge);
+                    const popupContent = renderPopup13Params(item.kecamatan, item.kab_kota, item.stats, item.kab_kota, clusterBadge, true);
                     
                     // Label Nama Permanen Kecamatan
                     layer.bindTooltip(
@@ -384,7 +405,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // Build Legenda
     const legendContainer = document.getElementById('legend-container');
     Array.from(clustersPresent).sort((a,b)=>a-b).forEach(c => {
-        legendContainer.innerHTML += `<div class="flex items-center gap-3"><div class="w-4 h-4 rounded-full shadow-sm" style="background-color: ${clusterColors[c % clusterColors.length]}"></div><span class="text-xs font-black text-gray-700">KLASTER ${c}</span></div>`;
+        const color = clusterColors[c] || '#9ca3af';
+        const name = clusterNames[c] || 'Klaster ' + c;
+        legendContainer.innerHTML += `<div class="flex items-center gap-2 mb-1.5"><div class="w-3.5 h-3.5 rounded-full shadow-sm shrink-0" style="background-color: ${color}"></div><span class="text-[9px] font-black text-gray-700 leading-tight">${name}</span></div>`;
     });
     if (clustersPresent.size === 0) legendContainer.innerHTML = `<p class="text-[10px] text-gray-400 italic">Data klaster belum di-run.</p>`;
 

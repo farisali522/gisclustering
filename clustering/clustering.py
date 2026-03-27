@@ -20,7 +20,8 @@ fitur_cols = [
     '%_v_pres', '%_v_pileg_ri', '%_v_pileg_prov', '%_v_pileg_kokab',
     '%_v_pilkada_gub', '%_v_pilkada_kokab',
     '%_part_pilpres', '%_part_pileg_ri', '%_part_pileg_prov',
-    '%_part_pileg_kab', '%_part_pilkada_gub', '%_part_pilkada_kokab'
+    '%_part_pileg_kab', '%_part_pilkada_gub', '%_part_pilkada_kokab',
+    'n_paslon_pilkada_kokab'
 ]
 print(f"[INFO] Fokus: Pemetaan Zonasi Strategis Wilayah (Clustering)")
 print(f"[INFO] Total Parameter: {len(fitur_cols)} fitur elektoral.")
@@ -250,32 +251,70 @@ tabel_distribusi_final.to_excel(nama_file_t4, index=False)
 tabel_profiling.to_excel(nama_file_profil, index=False)
 df.to_excel(nama_file_master, index=False)
 
-# 2. IDENTIFIKASI KECAMATAN OUTLIER (BERDARKAN PC2 TERTINGGI)
-idx_outlier = df_pca['PC2'].idxmax()
-info_kecamatan = df.iloc[[idx_outlier]]
+# 2. IDENTIFIKASI TITIK BATAS (BOUNDARY INDICATORS - PCA)
+outliers = {
+    "Titik Batas Atas (PC2 Max)": df_pca['PC2'].idxmax(),
+    "Titik Batas Bawah (PC2 Min)": df_pca['PC2'].idxmin(),
+    "Titik Batas Kanan (PC1 Max)": df_pca['PC1'].idxmax(),
+    "Titik Batas Kiri (PC1 Min)": df_pca['PC1'].idxmin()
+}
 
-print("=== IDENTITAS KECAMATAN DENGAN PERFORMA EKSTRIM (OUTLIER) ===")
+print("=== ANALISIS KECAMATAN SEBAGAI TITIK BATAS (BOUNDARY INDICATORS) ===")
 print("-" * 110)
-print(info_kecamatan[['id_kec', 'kab_kota', 'nama_kecamatan', 'Cluster_Label']].to_string(index=False))
-print("-" * 110)
 
-# Bedah detail 12 parameter asli (Transpose secara vertikal)
-print("\n=== DETAIL 12 PARAMETER PENELITIAN KECAMATAN INI ===")
-print("-" * 75)
-detail_param = info_kecamatan[fitur_cols].T.reset_index()
-detail_param.columns = ['Nama Parameter', 'Nilai Persentase Asli (%)']
-print(detail_param.to_string(index=False))
-print("-" * 75)
+for label, idx in outliers.items():
+    info_kec = df.iloc[[idx]]
+    print(f"\n>>> {label}")
+    print(info_kec[['id_kec', 'kab_kota', 'nama_kecamatan', 'Cluster_Label']].to_string(index=False))
+    
+    # Detail fitur (Transpose vertikal)
+    detail_param = info_kec[fitur_cols].T.reset_index()
+    detail_param.columns = ['Parameter', 'Nilai Asli (%)']
+    # Hanya tampilkan 5 parameter teratas untuk ringkasan atau semua jika diinginkan
+    print(detail_param.to_string(index=False))
+    print("-" * 75)
 
-# 3. EXPORT HASIL ANALISIS KHUSUS
-nama_file_outlier = "Analisis_Khusus_Kecamatan_Ekstrem.xlsx"
-info_kecamatan.to_excel(nama_file_outlier, index=False)
+# 3. VISUALISASI POSISI TITIK BATAS (PCA)
+plt.figure(figsize=(12, 8))
+sns.set_theme(style="whitegrid")
 
-print(f"\n[INFO] Berkas Laporan Akhir Berhasil Dihasilkan:")
+# Plot semua titik
+sns.scatterplot(x='PC1', y='PC2', hue='Cluster', data=df_pca, 
+                palette='tab10', s=60, alpha=0.5, edgecolor='none')
+
+# Highlight dan Label Outlier
+for label, idx in outliers.items():
+    row = df_pca.iloc[idx]
+    nama_kec = df.iloc[idx]['nama_kecamatan']
+    
+    # Tambah marker khusus
+    plt.scatter(row['PC1'], row['PC2'], color='red', s=150, marker='*', edgecolors='black', label=f"Titik Batas: {nama_kec}")
+    
+    # Tambah teks label
+    plt.text(row['PC1'] + 0.05, row['PC2'] + 0.05, f"{nama_kec}\n({label.split(' ')[2]})", 
+             fontsize=10, fontweight='bold', bbox=dict(facecolor='white', alpha=0.7, edgecolor='red'))
+
+plt.title('Peta Sebaran PCA & Identifikasi Titik Batas (Boundary Indicators)', fontsize=15, fontweight='bold', pad=20)
+plt.xlabel('Principal Component 1 (PC1)', fontweight='bold')
+plt.ylabel('Principal Component 2 (PC2)', fontweight='bold')
+plt.grid(True, linestyle='--', alpha=0.6)
+plt.tight_layout()
+plt.savefig("Visualisasi_PCA_Titik_Batas.png", dpi=120)
+plt.close()
+
+# 4. EXPORT HASIL ANALISIS KHUSUS
+# Menggabungkan semua outlier ke satu dataframe untuk export
+df_outliers_all = df.iloc[list(outliers.values())].copy()
+df_outliers_all['Kategori_Batas'] = list(outliers.keys())
+nama_file_outlier = "Analisis_Kecamatan_Titik_Batas_Lengkap.xlsx"
+df_outliers_all.to_excel(nama_file_outlier, index=False)
+
+print(f"\n[INFO] Berkas Laporan Akhir Berhasil Dihasilksan:")
 print(f"1. {nama_file_master} (Data Utama)")
-print(f"2. {nama_file_outlier} (Studi Kasus Ekstrem)")
+print(f"2. {nama_file_outlier} (Analisis Titik Batas Lengkap)")
 print(f"3. {nama_file_profil} (Profil Centroid)")
 print(f"4. {nama_file_t4} (Rekap Distribusi)")
+print(f"5. Visualisasi_PCA_Titik_Batas.png (Grafik Titik Batas)")
 
 print("\n" + "="*80)
 print("=== SELURUH TAHAPAN CRISP-DM TELAH SELESAI SECARA UTUH DAN LENGKAP ===")

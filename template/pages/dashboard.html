@@ -7,8 +7,7 @@
     <!-- Page Header -->
     <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
         <div>
-            <p class="text-xs font-bold text-maroon-900 tracking-wider uppercase mb-1 opacity-60">Pusat Informasi</p>
-            <h1 class="text-3xl lg:text-4xl font-serif font-black text-gray-900 leading-tight">Executive <span class="text-maroon-900">Overview</span></h1>
+            <h1 class="text-3xl lg:text-4xl font-serif font-black text-gray-900 leading-tight">Dashboard <span class="text-maroon-900">Overview</span></h1>
         </div>
         
         <!-- Dashboard Party Selector -->
@@ -314,6 +313,7 @@
         <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 border-b border-gray-100 pb-2">Akses Cepat Modul</h3>
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             
+            {% if request.user.is_superuser %}
             <!-- 1. Atribut -->
             <a href="{% url 'clustering-atribut' %}?partai_utama={{ selected_party.id }}" class="group bg-white rounded-2xl p-4 border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all flex flex-col items-center text-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-maroon-50 text-maroon-900 group-hover:bg-maroon-900 group-hover:text-gold-400 flex items-center justify-center transition-colors">
@@ -345,6 +345,7 @@
                 </div>
                 <span class="text-[10px] font-bold text-gray-700 leading-tight">Hasil<br>Cluster</span>
             </a>
+            {% endif %}
 
             <!-- 5. Clustering GIS -->
             <a href="{% url 'clustering-gis' %}?partai_utama={{ selected_party.id }}" class="group bg-white rounded-2xl p-4 border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all flex flex-col items-center text-center gap-3">

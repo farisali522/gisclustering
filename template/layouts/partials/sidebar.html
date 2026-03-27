@@ -12,6 +12,8 @@
                 <span class="text-sm font-semibold tracking-wide {% if request.resolver_match.url_name == 'dashboard' %}text-white{% endif %}">Dashboard Overview</span>
             </a>
 
+            <!-- Restricted Items for Admin Only -->
+            {% if request.user.is_superuser %}
             <!-- Clustering Atribut -->
             <a href="{% url 'clustering-atribut' %}" 
                class="flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 relative overflow-hidden group
@@ -55,6 +57,7 @@
                 <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
                 <span class="text-sm font-medium {% if request.resolver_match.url_name == 'clustering-results' %}text-white font-semibold{% endif %}">Hasil Cluster</span>
             </a>
+            {% endif %}
             
             <!-- Laporan Geospasial (Pro) -->
             <a href="{% url 'clustering-gis' %}" 
@@ -76,13 +79,5 @@
             </a>
             {% endif %}
         </nav>
-    </div>
-    
-    <div class="px-8 py-6 border-t border-gray-100">
-        <div class="p-4 bg-gradient-to-br from-maroon-900 to-maroon-800 rounded-2xl relative overflow-hidden">
-            <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-gold-400 rounded-full opacity-20 filter blur-xl"></div>
-            <p class="text-white text-xs font-medium mb-1 relative z-10">Bantuan Teknis?</p>
-            <p class="text-gold-400 text-[10px] relative z-10">Hubungi IT Support Divisi</p>
-        </div>
     </div>
 </aside>

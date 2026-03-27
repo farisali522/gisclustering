@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Sum, F, OuterRef, Subquery, IntegerField
+from django.db.models import Sum, F, OuterRef, Subquery, IntegerField, Count
 from django.db.models.functions import Coalesce
 from django.http import HttpResponse
 from django.template.loader import get_template
@@ -270,12 +270,23 @@ def get_clustering_data(party_id=None):
         dpt_pilkada_count=Coalesce(F('tps_pilkada__rekap_dpt_pilkada'), 0),
     ).order_by('kab_kota__nama_kokab', 'nama_kecamatan')
     
+    # Hitung Jumlah Paslon per Kabupaten (n_paslon_pilkada_kokab)
+    # Kotak kosong tidak dihitung sebagai paslon (sesuai permintaan user)
+    from pilwalbup.models import PaslonWalbup
+    paslon_counts = {
+        item['kab_kota_id']: item['count'] 
+        for item in PaslonWalbup.objects.exclude(nama_calon__icontains='KOTAK KOSONG').values('kab_kota_id').annotate(count=Count('id'))
+    }
+
     kecamatan_data = []
     for k in raw_data:
         target_paslon_walbup = walbup_map.get(k.kab_kota_id)
         perf_walbup_votes = 0
         if target_paslon_walbup:
             perf_walbup_votes = DSPilwalbup.objects.filter(kecamatan=k, paslon_id=target_paslon_walbup).aggregate(Sum('jumlah_suara'))['jumlah_suara__sum'] or 0
+
+        # Parameter ke-13: Jumlah Paslon di Kabupaten tersebut
+        n_paslon = paslon_counts.get(k.kab_kota_id, 0)
 
         data = {
             'id': k.id,
@@ -294,6 +305,7 @@ def get_clustering_data(party_id=None):
             'part_kokab': round(((k.part_kokab_sah + k.part_kokab_tdk_sah) / k.part_pilpres_dpt) * 100, 2) if k.part_pilpres_dpt > 0 else 0,
             'part_pilgub': round(((k.part_pilgub_sah + k.part_pilgub_tdk_sah) / k.part_pilgub_dpt) * 100, 2) if k.part_pilgub_dpt > 0 else 0,
             'part_walbup': round(((k.part_walbup_sah + k.part_walbup_tdk_sah) / k.part_pilgub_dpt) * 100, 2) if k.part_pilgub_dpt > 0 else 0,
+            'n_paslon_pilkada_kokab': round((1 / n_paslon) * 100, 2) if n_paslon > 0 else 0,
             'raw': {
                 'pilpres_votes': k.perf_pilpres_votes,
                 'pilpres_sah': k.perf_pilpres_sah,
@@ -361,6 +373,10 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 @login_required(login_url='login')
 def clustering_atribut_view(request):
+    if not request.user.is_superuser:
+        messages.warning(request, "Akses ditolak. Hanya Admin yang dapat melihat detail atribut clustering.")
+        return redirect('dashboard')
+        
     selected_party_id = request.GET.get('partai_utama') or request.POST.get('partai_utama')
     main_party, kecamatan_data, recap_perc = get_clustering_data(selected_party_id)
 
@@ -405,6 +421,9 @@ def clustering_atribut_view(request):
 
 @login_required(login_url='login')
 def export_clustering_excel(request):
+    if not request.user.is_superuser:
+        return redirect('dashboard')
+        
     selected_party_id = request.GET.get('partai_utama')
     main_party, data, recap = get_clustering_data(selected_party_id)
     
@@ -414,7 +433,8 @@ def export_clustering_excel(request):
         'perf_pilpres': 'Perf Pilpres (%)', 'perf_ri': 'Perf RI (%)', 'perf_prov': 'Perf Prov (%)',
         'perf_kokab': 'Perf Kokab (%)', 'perf_pilgub': 'Perf Pilgub (%)', 'perf_walbup': 'Perf Walbup (%)',
         'part_pilpres': 'Part Pilpres (%)', 'part_ri': 'Part RI (%)', 'part_prov': 'Part Prov (%)',
-        'part_kokab': 'Part Kokab (%)', 'part_pilgub': 'Part Pilgub (%)', 'part_walbup': 'Part Walbup (%)'
+        'part_kokab': 'Part Kokab (%)', 'part_pilgub': 'Part Pilgub (%)', 'part_walbup': 'Part Walbup (%)',
+        'n_paslon_pilkada_kokab': 'Ratio Dukungan Paslon (%)'
     }
     
     df = pd.DataFrame(data)
@@ -439,6 +459,10 @@ def export_clustering_excel(request):
 
 @login_required
 def zscore_normalization_view(request):
+    if not request.user.is_superuser:
+        messages.warning(request, "Akses ditolak. Halaman ini hanya untuk keperluan teknis Admin.")
+        return redirect('dashboard')
+        
     """
     Diagnostic view to show standardized (Z-Score) values.
     Helpful for understanding how data is transformed before clustering.
@@ -447,7 +471,8 @@ def zscore_normalization_view(request):
     
     attributes = [
         'perf_pilpres', 'perf_ri', 'perf_prov', 'perf_kokab', 'perf_pilgub', 'perf_walbup',
-        'part_pilpres', 'part_ri', 'part_prov', 'part_kokab', 'part_pilgub', 'part_walbup'
+        'part_pilpres', 'part_ri', 'part_prov', 'part_kokab', 'part_pilgub', 'part_walbup',
+        'n_paslon_pilkada_kokab'
     ]
     
     df = pd.DataFrame(kecamatan_data)
@@ -474,12 +499,16 @@ def zscore_normalization_view(request):
 
 @login_required(login_url='login')
 def export_zscore_excel(request):
+    if not request.user.is_superuser:
+        return redirect('dashboard')
+        
     selected_party_id = request.GET.get('partai_utama')
     main_party, kecamatan_data, extra = get_clustering_data(selected_party_id)
     
     attributes = [
         'perf_pilpres', 'perf_ri', 'perf_prov', 'perf_kokab', 'perf_pilgub', 'perf_walbup',
-        'part_pilpres', 'part_ri', 'part_prov', 'part_kokab', 'part_pilgub', 'part_walbup'
+        'part_pilpres', 'part_ri', 'part_prov', 'part_kokab', 'part_pilgub', 'part_walbup',
+        'n_paslon_pilkada_kokab'
     ]
     
     df = pd.DataFrame(kecamatan_data)
@@ -513,6 +542,10 @@ def export_zscore_excel(request):
 
 @login_required(login_url='login')
 def clustering_validation_view(request):
+    if not request.user.is_superuser:
+        messages.warning(request, "Akses ditolak. Validasi permodelan hanya dapat diakses oleh Admin.")
+        return redirect('dashboard')
+        
     """
     Tahap 4 CRISP-DM: Modeling (Validasi K-Optimal)
     Menghitung SSE, Silhouette Score, and DBI untuk mencari nilai K terbaik.
@@ -522,7 +555,8 @@ def clustering_validation_view(request):
     
     attributes = [
         'perf_pilpres', 'perf_ri', 'perf_prov', 'perf_kokab', 'perf_pilgub', 'perf_walbup',
-        'part_pilpres', 'part_ri', 'part_prov', 'part_kokab', 'part_pilgub', 'part_walbup'
+        'part_pilpres', 'part_ri', 'part_prov', 'part_kokab', 'part_pilgub', 'part_walbup',
+        'n_paslon_pilkada_kokab'
     ]
     
     df = pd.DataFrame(kecamatan_data)
@@ -546,10 +580,12 @@ def clustering_validation_view(request):
                 'dbi': davies_bouldin_score(X_scaled, labels)
             })
             
-        # Tandai skor terbaik (Optimal)
+        # Tandai skor terbaik (Ranking)
         if validation_results:
-            max_silh = max(r['silhouette'] for r in validation_results)
-            min_dbi = min(r['dbi'] for r in validation_results)
+            # Sort for Silhouette (Descending)
+            silh_desc = sorted(validation_results, key=lambda x: x['silhouette'], reverse=True)
+            # Sort for DBI (Ascending)
+            dbi_asc = sorted(validation_results, key=lambda x: x['dbi'])
             
             # Elbow Point (Secant-Line Distance)
             p1 = (validation_results[0]['k'], validation_results[0]['sse'])
@@ -568,8 +604,14 @@ def clustering_validation_view(request):
                     elbow_k = r['k']
             
             for r in validation_results:
-                r['is_best_silhouette'] = (r['silhouette'] == max_silh)
-                r['is_best_dbi'] = (r['dbi'] == min_dbi)
+                # Rank Silhouette
+                r['rank_silhouette'] = next((i + 1 for i, s in enumerate(silh_desc) if s['k'] == r['k']), 99)
+                r['is_top3_silhouette'] = (r['rank_silhouette'] <= 3)
+                
+                # Rank DBI
+                r['rank_dbi'] = next((i + 1 for i, d in enumerate(dbi_asc) if d['k'] == r['k']), 99)
+                r['is_top2_dbi'] = (r['rank_dbi'] <= 2)
+                
                 r['is_elbow'] = (r['k'] == elbow_k)
 
     context = {
@@ -583,6 +625,10 @@ def clustering_validation_view(request):
 
 @login_required(login_url='login')
 def clustering_results_view(request):
+    if not request.user.is_superuser:
+        messages.warning(request, "Akses ditolak. Hasil klasterisasi bersifat terbatas.")
+        return redirect('dashboard')
+        
     """
     Tahap 5-6 CRISP-DM: Evaluation & Deployment
     Menjalankan K-Means final, menyimpan label ke DB, dan menyiapkan PCA + Heatmap.
@@ -601,11 +647,13 @@ def clustering_results_view(request):
 
     attributes = [
         'perf_pilpres', 'perf_ri', 'perf_prov', 'perf_kokab', 'perf_pilgub', 'perf_walbup',
-        'part_pilpres', 'part_ri', 'part_prov', 'part_kokab', 'part_pilgub', 'part_walbup'
+        'part_pilpres', 'part_ri', 'part_prov', 'part_kokab', 'part_pilgub', 'part_walbup',
+        'n_paslon_pilkada_kokab'
     ]
     attr_labels = [
-        '% Pilpres', '% Pileg RI', '% Pileg Prov', '% Pileg Kokab', '% Pilgub', '% Pilwalbup',
-        'Part. Pilpres', 'Part. Pileg RI', 'Part. Pileg Prov', 'Part. Pileg Kab', 'Part. Pilgub', 'Part. Pilwalbup'
+        'Perf Pres', 'Perf RI', 'Perf Prov', 'Perf Kab', 'Perf Gub', 'Perf Wkt',
+        'Part Pres', 'Part RI', 'Part Prov', 'Part Kab', 'Part Gub', 'Part Wkt',
+        'Ratio Duk'
     ]
 
     df = pd.DataFrame(kecamatan_data)
@@ -630,42 +678,57 @@ def clustering_results_view(request):
                 defaults={'label_cluster': int(row['cluster_label'])}
             )
 
+        # Legend Mapping (Berdasarkan Hasil Penelitian User)
+        cluster_info = {
+            0: {'name': 'Klaster Karakteristik Khusus', 'color': '#6366f1'},
+            1: {'name': 'Klaster Pertumbuhan Kritis', 'color': '#ef4444'},
+            2: {'name': 'Klaster Partisipasi Aktif', 'color': '#10b981'},
+            3: {'name': 'Klaster Urban Dinamis', 'color': '#3b82f6'},
+            4: {'name': 'Klaster Performa Konsisten', 'color': '#eab308'}
+        }
+
         # PCA 2D untuk Scatter Plot
         pca = PCA(n_components=2)
         X_pca = pca.fit_transform(X_scaled)
         acc_pca = round(sum(pca.explained_variance_ratio_) * 100, 2)
 
-        colors = ['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#8b5cf6','#ec4899','#14b8a6','#f43f5e']
         for i in range(len(df)):
+            cid = int(labels[i])
+            c_style = cluster_info.get(cid, {'name': f'Klaster {cid}', 'color': '#94a3b8'})
             pca_data.append({
                 'x': round(float(X_pca[i][0]), 4),
                 'y': round(float(X_pca[i][1]), 4),
-                'label': int(labels[i]),
+                'label': cid,
                 'name': df.iloc[i]['kecamatan'],
                 'kab': df.iloc[i]['kab_kota'],
-                'color': colors[int(labels[i]) % len(colors)]
+                'cluster_name': c_style['name'],
+                'color': c_style['color']
             })
 
         # Centroid Profiling
         for c in range(k_final):
             cluster_df = df[df['cluster_label'] == c]
             means = cluster_df[attributes].mean().round(2).tolist()
+            c_style = cluster_info.get(c, {'name': f'Klaster {c}', 'color': '#94a3b8'})
             centroid_data.append({
                 'cluster': c,
-                'name': f"Klaster {c}",
+                'name': c_style['name'],
+                'color': c_style['color'],
                 'count': len(cluster_df),
                 'means': means
             })
 
         # Tabel Hasil
         for _, row in df.iterrows():
-            cluster_id = int(row['cluster_label'])
+            cid = int(row['cluster_label'])
+            c_style = cluster_info.get(cid, {'name': f'Klaster {cid}', 'color': '#94a3b8'})
             result_rows.append({
                 'kode': row['kode'],
                 'kab_kota': row['kab_kota'],
                 'kecamatan': row['kecamatan'],
-                'cluster': cluster_id,
-                'cluster_name': f"Klaster {cluster_id}"
+                'cluster': cid,
+                'cluster_name': c_style['name'],
+                'color': c_style['color']
             })
 
     context = {
@@ -686,6 +749,9 @@ def clustering_results_view(request):
 
 @login_required(login_url='login')
 def export_clustering_results_excel(request):
+    if not request.user.is_superuser:
+        return redirect('dashboard')
+        
     """Export tabel Hasil Cluster (dengan Kode Kecamatan dan Label Klaster) ke Excel."""
     selected_party_id = request.GET.get('partai_utama')
     k_final = int(request.GET.get('k', 5))
@@ -693,7 +759,8 @@ def export_clustering_results_excel(request):
 
     attributes = [
         'perf_pilpres', 'perf_ri', 'perf_prov', 'perf_kokab', 'perf_pilgub', 'perf_walbup',
-        'part_pilpres', 'part_ri', 'part_prov', 'part_kokab', 'part_pilgub', 'part_walbup'
+        'part_pilpres', 'part_ri', 'part_prov', 'part_kokab', 'part_pilgub', 'part_walbup',
+        'n_paslon_pilkada_kokab'
     ]
     df = pd.DataFrame(kecamatan_data)
     if df.empty:
@@ -887,6 +954,9 @@ def clustering_gis_view(request):
         'geojson_data', 'clustering', 'kab_kota'
     ).filter(geojson_data__isnull=False)
     
+    # Indexing results to map on GIS
+    kec_results_map = {d['kode']: d for d in kecamatan_data}
+    
     for kec in kecamatans:
         c_label = kec.clustering.label_cluster if hasattr(kec, 'clustering') else None
         geo_val = kec.geojson_data.geojson_data
@@ -900,7 +970,7 @@ def clustering_gis_view(request):
             'kab_kota': kec.kab_kota.nama_kokab,
             'cluster': c_label,
             'geojson': geo_val,
-            'stats': kec_stats_by_kode.get(kec.kode_kecamatan, {})
+            'stats': kec_results_map.get(kec.kode_kecamatan, {})
         })
 
     data_peta_kokab = []

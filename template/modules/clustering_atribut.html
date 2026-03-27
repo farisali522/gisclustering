@@ -90,7 +90,7 @@
         </div>
         <!-- Wrapper for horizontal scroll with custom scrollbar -->
         <div class="overflow-x-auto custom-scrollbar overflow-y-visible relative border-t border-gray-50">
-            <table class="w-full text-left border-separate border-spacing-0 min-w-[1100px]">
+            <table class="w-full text-left border-separate border-spacing-0">
                 <thead class="sticky top-0 z-30">
                     <tr class="bg-gray-50">
                         <th rowspan="2" class="sticky left-0 z-50 px-6 py-6 text-[10px] font-black uppercase tracking-widest text-gray-500 border-b border-r border-gray-100 bg-gray-50 sticky-col-shadow">Info Wilayah</th>
@@ -100,22 +100,25 @@
                         <th colspan="6" class="px-4 py-3 text-center text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 border-b-2 border-gray-200 bg-gray-100/30">
                             Tingkat Partisipasi (Turnout)
                         </th>
+                        <th rowspan="2" class="px-4 py-3 text-center text-[10px] font-black uppercase tracking-[0.2em] text-indigo-900 border-b-2 border-indigo-900/20 bg-indigo-50/50">
+                            Ratio Duk (%)
+                        </th>
                     </tr>
                     <tr class="bg-gray-50">
                         <!-- Sub-headers Performa -->
-                        <th class="px-3 py-3 text-[9px] font-bold uppercase text-maroon-800 border-b border-gray-100">Pilpres</th>
-                        <th class="px-3 py-3 text-[9px] font-bold uppercase text-maroon-800 border-b border-gray-100">RI</th>
-                        <th class="px-3 py-3 text-[9px] font-bold uppercase text-maroon-800 border-b border-gray-100">Prov</th>
-                        <th class="px-3 py-3 text-[9px] font-bold uppercase text-maroon-800 border-b border-gray-100">Kokab</th>
-                        <th class="px-3 py-3 text-[9px] font-bold uppercase text-maroon-800 border-b border-gray-100">Pilgub</th>
-                        <th class="px-3 py-3 text-[9px] font-bold uppercase text-maroon-800 border-b border-gray-100">Walbup</th>
+                        <th class="px-1.5 py-3 text-[8px] font-bold uppercase text-maroon-800 border-b border-gray-100">Pres</th>
+                        <th class="px-1.5 py-3 text-[8px] font-bold uppercase text-maroon-800 border-b border-gray-100">RI</th>
+                        <th class="px-1.5 py-3 text-[8px] font-bold uppercase text-maroon-800 border-b border-gray-100">Prov</th>
+                        <th class="px-1.5 py-3 text-[8px] font-bold uppercase text-maroon-800 border-b border-gray-100">Kab</th>
+                        <th class="px-1.5 py-3 text-[8px] font-bold uppercase text-maroon-800 border-b border-gray-100">Gub</th>
+                        <th class="px-1.5 py-3 text-[8px] font-bold uppercase text-maroon-800 border-b border-gray-100">Wkt</th>
                         <!-- Sub-headers Partisipasi -->
-                        <th class="px-3 py-3 text-[9px] font-bold uppercase text-gray-500 border-b border-gray-100">Pilpres</th>
-                        <th class="px-3 py-3 text-[9px] font-bold uppercase text-gray-500 border-b border-gray-100">RI</th>
-                        <th class="px-3 py-3 text-[9px] font-bold uppercase text-gray-500 border-b border-gray-100">Prov</th>
-                        <th class="px-3 py-3 text-[9px] font-bold uppercase text-gray-500 border-b border-gray-100">Kokab</th>
-                        <th class="px-3 py-3 text-[9px] font-bold uppercase text-gray-500 border-b border-gray-100">Pilgub</th>
-                        <th class="px-3 py-3 text-[9px] font-bold uppercase text-gray-500 border-b border-gray-100">Walbup</th>
+                        <th class="px-1.5 py-3 text-[8px] font-bold uppercase text-gray-500 border-b border-gray-100">Pres</th>
+                        <th class="px-1.5 py-3 text-[8px] font-bold uppercase text-gray-500 border-b border-gray-100">RI</th>
+                        <th class="px-1.5 py-3 text-[8px] font-bold uppercase text-gray-500 border-b border-gray-100">Prov</th>
+                        <th class="px-1.5 py-3 text-[8px] font-bold uppercase text-gray-500 border-b border-gray-100">Kab</th>
+                        <th class="px-1.5 py-3 text-[8px] font-bold uppercase text-gray-500 border-b border-gray-100">Gub</th>
+                        <th class="px-1.5 py-3 text-[8px] font-bold uppercase text-gray-500 border-b border-gray-100">Wkt</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-50">
@@ -129,24 +132,27 @@
                         </td>
                         
                         <!-- 6 Kolom Performa -->
-                        <td class="px-3 py-4 text-xs font-black text-maroon-900 bg-maroon-50/10">{{ d.perf_pilpres|floatformat:2 }}%</td>
-                        <td class="px-3 py-4 text-xs font-bold text-maroon-800">{{ d.perf_ri|floatformat:2 }}%</td>
-                        <td class="px-3 py-4 text-xs font-bold text-maroon-800">{{ d.perf_prov|floatformat:2 }}%</td>
-                        <td class="px-3 py-4 text-xs font-bold text-maroon-800">{{ d.perf_kokab|floatformat:2 }}%</td>
-                        <td class="px-3 py-4 text-xs font-bold text-maroon-800">{{ d.perf_pilgub|floatformat:2 }}%</td>
-                        <td class="px-3 py-4 text-xs font-bold text-maroon-800">{{ d.perf_walbup|floatformat:2 }}%</td>
+                        <td class="px-1.5 py-3 text-[10px] font-black text-maroon-900 bg-maroon-50/10">{{ d.perf_pilpres|floatformat:1 }}%</td>
+                        <td class="px-1.5 py-3 text-[10px] font-bold text-maroon-800">{{ d.perf_ri|floatformat:1 }}%</td>
+                        <td class="px-1.5 py-3 text-[10px] font-bold text-maroon-800">{{ d.perf_prov|floatformat:1 }}%</td>
+                        <td class="px-1.5 py-3 text-[10px] font-bold text-maroon-800">{{ d.perf_kokab|floatformat:1 }}%</td>
+                        <td class="px-1.5 py-3 text-[10px] font-bold text-maroon-800">{{ d.perf_pilgub|floatformat:1 }}%</td>
+                        <td class="px-1.5 py-3 text-[10px] font-bold text-maroon-800">{{ d.perf_walbup|floatformat:1 }}%</td>
 
                         <!-- 6 Kolom Partisipasi -->
-                        <td class="px-3 py-4 text-xs font-bold text-gray-500 bg-gray-50/30">{{ d.part_pilpres|floatformat:2 }}%</td>
-                        <td class="px-3 py-4 text-xs font-medium text-gray-400">{{ d.part_ri|floatformat:2 }}%</td>
-                        <td class="px-3 py-4 text-xs font-medium text-gray-400">{{ d.part_prov|floatformat:2 }}%</td>
-                        <td class="px-3 py-4 text-xs font-medium text-gray-400">{{ d.part_kokab|floatformat:2 }}%</td>
-                        <td class="px-3 py-4 text-xs font-medium text-gray-400">{{ d.part_pilgub|floatformat:2 }}%</td>
-                        <td class="px-3 py-4 text-xs font-medium text-gray-400">{{ d.part_walbup|floatformat:2 }}%</td>
+                        <td class="px-1.5 py-3 text-[10px] font-bold text-gray-500 bg-gray-50/30">{{ d.part_pilpres|floatformat:1 }}%</td>
+                        <td class="px-1.5 py-3 text-[10px] font-medium text-gray-400">{{ d.part_ri|floatformat:1 }}%</td>
+                        <td class="px-1.5 py-3 text-[10px] font-medium text-gray-400">{{ d.part_prov|floatformat:1 }}%</td>
+                        <td class="px-1.5 py-3 text-[10px] font-medium text-gray-400">{{ d.part_kokab|floatformat:1 }}%</td>
+                        <td class="px-1.5 py-3 text-[10px] font-medium text-gray-400">{{ d.part_pilgub|floatformat:1 }}%</td>
+                        <td class="px-1.5 py-3 text-[10px] font-medium text-gray-400">{{ d.part_walbup|floatformat:1 }}%</td>
+
+                        <!-- 1 Kolom Kompetisi -->
+                        <td class="px-1.5 py-3 text-[10px] font-black text-indigo-900 bg-indigo-50/10 text-center">{{ d.n_paslon_pilkada_kokab|floatformat:1 }}%</td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="15" class="px-6 py-12 text-center text-gray-400 font-medium italic">Data belum teragregasi secara lengkap.</td>
+                        <td colspan="16" class="px-6 py-12 text-center text-gray-400 font-medium italic">Data belum teragregasi secara lengkap.</td>
                     </tr>
                     {% endfor %}
                 </tbody>

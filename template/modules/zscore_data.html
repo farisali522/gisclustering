@@ -49,7 +49,7 @@
     <!-- Data Table Z-Score -->
     <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-50 bg-gray-50/30 flex flex-col md:flex-row justify-between items-center gap-4">
-            <h2 class="text-sm font-black text-gray-900 uppercase tracking-tighter">Matrix Standardized Values (12 Parameters)</h2>
+            <h2 class="text-sm font-black text-gray-900 uppercase tracking-tighter">Matrix Standardized Values (13 Parameters)</h2>
             <div class="flex items-center gap-4">
                 <a href="{% url 'export-zscore-excel' %}?partai_utama={{ selected_party.id }}" class="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-xl text-[11px] font-bold hover:bg-green-100 transition-all border border-green-100 shadow-sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
@@ -73,12 +73,12 @@
         </div>
 
         <div class="overflow-x-auto custom-scrollbar overflow-y-visible relative border-t border-gray-50">
-            <table class="w-full text-left border-separate border-spacing-0 min-w-[1100px]">
+            <table class="w-full text-left border-separate border-spacing-0">
                 <thead class="sticky top-0 z-30">
                     <tr class="bg-gray-50">
-                        <th class="sticky left-0 z-50 px-6 py-5 text-xs font-black uppercase tracking-widest text-gray-500 bg-gray-50 border-b border-r border-gray-100 sticky-col-shadow">Kecamatan</th>
+                        <th class="sticky left-0 z-50 px-4 py-4 text-xs font-black uppercase tracking-widest text-gray-500 bg-gray-50 border-b border-r border-gray-100 sticky-col-shadow">Kecamatan</th>
                         {% for attr in attributes %}
-                        <th class="px-3 py-4 text-[10px] font-black uppercase text-gray-400 border-b border-gray-100 text-center">{{ attr|replace:'perf_,P: '|replace:'part_,T: ' }}</th>
+                        <th class="px-1.5 py-4 text-[9px] font-black uppercase text-gray-400 border-b border-gray-100 text-center">{{ attr|replace:'perf_,P: '|replace:'part_,T: '|replace:'n_paslon_pilkada_kokab,Ratio Duk' }}</th>
                         {% endfor %}
                     </tr>
                 </thead>
@@ -95,11 +95,11 @@
                         {% for attr in attributes %}
                         {% with z_key='z_'|append:attr %}
                         {% with z_val=d|get_item:z_key %}
-                        <td class="px-3 py-4 text-[11px] font-mono font-bold text-center border-b border-gray-50
+                        <td class="px-1.5 py-3 text-[10px] font-mono font-bold text-center border-b border-gray-50
                             {% if z_val > 0.5 %}bg-green-50 text-green-700
                             {% elif z_val < -0.5 %}bg-red-50 text-red-600
                             {% else %}text-gray-400{% endif %}">
-                            {{ z_val|floatformat:3 }}
+                            {{ z_val|floatformat:2 }}
                         </td>
                         {% endwith %}
                         {% endwith %}
