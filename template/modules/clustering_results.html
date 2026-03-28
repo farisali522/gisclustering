@@ -4,6 +4,29 @@
 
 {% block content %}
 <div class="px-8 py-8">
+    <style>
+        .cluster-badge {
+            display: inline-flex; height: 2rem; width: 2rem; align-items: center; justify-content: center;
+            border-radius: 9999px; color: white; font-size: 10px; font-weight: 900; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        }
+        .cluster-bg-0 { background-color: #6366f1; } .cluster-bg-1 { background-color: #ef4444; }
+        .cluster-bg-2 { background-color: #10b981; } .cluster-bg-3 { background-color: #3b82f6; }
+        .cluster-bg-4 { background-color: #eab308; } .cluster-bg-5 { background-color: #8b5cf6; }
+        .cluster-bg-6 { background-color: #f472b6; } .cluster-bg-7 { background-color: #0ea5e9; }
+        .cluster-bg-8 { background-color: #f97316; } .cluster-bg-9 { background-color: #14b8a6; }
+
+        .cluster-border-0 { border-color: #6366f1; } .cluster-border-1 { border-color: #ef4444; }
+        .cluster-border-2 { border-color: #10b981; } .cluster-border-3 { border-color: #3b82f6; }
+        .cluster-border-4 { border-color: #eab308; } .cluster-border-5 { border-color: #8b5cf6; }
+        .cluster-border-6 { border-color: #f472b6; } .cluster-border-7 { border-color: #0ea5e9; }
+        .cluster-border-8 { border-color: #f97316; } .cluster-border-9 { border-color: #14b8a6; }
+
+        .cluster-text-0 { color: #6366f1; } .cluster-text-1 { color: #ef4444; }
+        .cluster-text-2 { color: #10b981; } .cluster-text-3 { color: #3b82f6; }
+        .cluster-text-4 { color: #eab308; } .cluster-text-5 { color: #8b5cf6; }
+        .cluster-text-6 { color: #f472b6; } .cluster-text-7 { color: #0ea5e9; }
+        .cluster-text-8 { color: #f97316; } .cluster-text-9 { color: #14b8a6; }
+    </style>
 
     <!-- Success Toast Notification -->
     <div id="successToast" class="fixed top-5 right-5 bg-emerald-600 text-white px-6 py-4 rounded-2xl shadow-2xl transform transition-all duration-500 translate-x-[150%] opacity-0 z-50 flex items-center gap-3">
@@ -73,31 +96,15 @@
     
     <!-- Legend: Klaster Hasil Penelitian -->
     <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-        <div class="bg-white p-4 rounded-2xl border-l-4 border-indigo-500 shadow-sm relative overflow-hidden">
-            <div class="absolute -right-2 -top-2 text-indigo-100 font-black text-4xl opacity-20">0</div>
-            <p class="text-[10px] font-black text-gray-800 leading-tight uppercase">Klaster Karakteristik Khusus</p>
-            <p class="text-[8px] text-gray-400 mt-1 italic">Eksklusif Kab. Ciamis (n_paslon 100)</p>
+        {% for cid, color in cluster_colors.items %}
+        {% if cid < 5 %}
+        <div class="bg-white p-4 rounded-2xl border-l-4 shadow-sm relative overflow-hidden cluster-border-{{ cid }}">
+            <div class="absolute -right-2 -top-2 font-black text-4xl opacity-10 cluster-text-{{ cid }}">{{ cid }}</div>
+            <p class="text-[10px] font-black text-gray-800 leading-tight uppercase">Klaster {{ cid }}</p>
+            <p class="text-[8px] text-gray-400 mt-1 italic">Berdasarkan hasil pemrosesan model K-Means.</p>
         </div>
-        <div class="bg-white p-4 rounded-2xl border-l-4 border-red-500 shadow-sm relative overflow-hidden">
-            <div class="absolute -right-2 -top-2 text-red-100 font-black text-4xl opacity-20">1</div>
-            <p class="text-[10px] font-black text-gray-800 leading-tight uppercase">Klaster Pertumbuhan Kritis</p>
-            <p class="text-[8px] text-gray-400 mt-1 italic">Sukabumi, Cianjur, Indramayu (Low Global)</p>
-        </div>
-        <div class="bg-white p-4 rounded-2xl border-l-4 border-emerald-500 shadow-sm relative overflow-hidden">
-            <div class="absolute -right-2 -top-2 text-emerald-100 font-black text-4xl opacity-20">2</div>
-            <p class="text-[10px] font-black text-gray-800 leading-tight uppercase">Klaster Partisipasi Aktif</p>
-            <p class="text-[8px] text-gray-400 mt-1 italic">Partisipasi ~85% (Bandung, Sumedang)</p>
-        </div>
-        <div class="bg-white p-4 rounded-2xl border-l-4 border-blue-500 shadow-sm relative overflow-hidden">
-            <div class="absolute -right-2 -top-2 text-blue-100 font-black text-4xl opacity-20">3</div>
-            <p class="text-[10px] font-black text-gray-800 leading-tight uppercase">Klaster Urban Dinamis</p>
-            <p class="text-[8px] text-gray-400 mt-1 italic">Populasi Besar (Bekasi, Depok, Bogor)</p>
-        </div>
-        <div class="bg-white p-4 rounded-2xl border-l-4 border-yellow-500 shadow-sm relative overflow-hidden">
-            <div class="absolute -right-2 -top-2 text-yellow-100 font-black text-4xl opacity-20">4</div>
-            <p class="text-[10px] font-black text-gray-800 leading-tight uppercase">Klaster Performa Konsisten</p>
-            <p class="text-[8px] text-gray-400 mt-1 italic">Pilar Kekuatan Utama (Karawang, Bekasi)</p>
-        </div>
+        {% endif %}
+        {% endfor %}
     </div>
 
     <!-- Results Table -->
@@ -134,11 +141,9 @@
                         <td class="px-8 py-3 text-[11px] text-gray-500 font-medium">{{ row.kab_kota }}</td>
                         <td class="px-8 py-3 text-[11px] text-gray-800 font-semibold">{{ row.kecamatan }}</td>
                         <td class="px-8 py-3 text-center">
-                            <div class="inline-flex items-center gap-3 px-4 py-2 rounded-xl border-2 shadow-sm" style="border-color: {{ row.color }}; background-color: {{ row.color }}10;">
-                                <div class="w-2 h-2 rounded-full" style="background-color: {{ row.color }};"></div>
-                                <span class="text-[10px] font-black uppercase tracking-tight" style="color: {{ row.color }}">{{ row.cluster_name }}</span>
-                                <span class="text-[9px] font-bold text-gray-400 ml-1">K{{ row.cluster }}</span>
-                            </div>
+                                <span class="cluster-badge cluster-bg-{{ row.cluster }}">
+                                    {{ row.cluster }}
+                                </span>
                         </td>
                     </tr>
                     {% empty %}
@@ -200,6 +205,7 @@
 {{ centroid_data|json_script:"centroid-data" }}
 {{ attr_labels|json_script:"attr-labels" }}
 {{ k_final|json_script:"k-final" }}
+{{ cluster_colors|json_script:"cluster-colors" }}
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
@@ -208,10 +214,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const centroidData = JSON.parse(document.getElementById('centroid-data').textContent);
     const attrLabels = JSON.parse(document.getElementById('attr-labels').textContent);
     const kFinal = JSON.parse(document.getElementById('k-final').textContent);
-
-    const clusterColors = {
-        0: '#6366f1', 1: '#ef4444', 2: '#10b981', 3: '#3b82f6', 4: '#eab308'
-    };
+    const clusterColors = JSON.parse(document.getElementById('cluster-colors').textContent);
 
     // ── PCA Scatter Chart ──
     const grouped = {};
@@ -258,7 +261,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const tbody = document.getElementById('heatmapBody');
         centroidData.forEach(c => {
             const tr = document.createElement('tr');
-            let cells = `<td class="py-4 pr-3 font-black text-gray-700 whitespace-nowrap"><span class="inline-flex items-center justify-center w-8 h-8 rounded-full text-white text-[10px] font-black shadow-sm" style="background:${c.color}">${c.cluster}</span> <span class="text-[9px] font-bold ml-1 uppercase" style="color:${c.color}">${c.name}</span> <span class="text-[10px] text-gray-400 block ml-9 -mt-2">${c.count} kec</span></td>`;
+            let cells = `<td class="py-4 pr-3 font-black text-gray-700 whitespace-nowrap"><span class="inline-flex items-center justify-center w-8 h-8 rounded-full text-white text-[10px] font-black shadow-sm" style="background:${c.color}">${c.cluster}</span> <span class="text-[10px] text-gray-400 block ml-9 -mt-2">${c.count} kec</span></td>`;
             c.means.forEach((v, i) => {
                 const minVal = colMins[i];
                 const maxVal = colMaxs[i];
