@@ -281,7 +281,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Gelapkan warna dasar untuk teks agar sangat kontras dan mudah dibaca
                 const textR = Math.round(r * 0.6), textG = Math.round(g * 0.6), textB = Math.round(b * 0.6);
                 
-                cells += `<td class="py-4 px-1 text-center font-mono font-black text-[11px] border-[3px] border-white" style="background:rgba(${r},${g},${b},0.3);color:rgb(${textR},${textG},${textB})">${v}</td>`;
+                cells += `<td class="py-4 px-1 text-center font-mono font-black text-[11px] border-[3px] border-white" style="background:rgba(${r},${g},${b},0.3);color:rgb(${textR},${textG},${textB})">${v.toFixed(3)}</td>`;
             });
             tr.innerHTML = cells;
             tbody.appendChild(tr);

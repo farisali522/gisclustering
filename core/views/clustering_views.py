@@ -83,11 +83,11 @@ def export_clustering_excel(request):
     
     column_mapping = {
         'kode': 'Kode', 'kab_kota': 'Kabupaten/Kota', 'kecamatan': 'Kecamatan',
-        'perf_pilpres': 'Perf Pilpres (%)', 'perf_ri': 'Perf RI (%)', 'perf_prov': 'Perf Prov (%)',
-        'perf_kokab': 'Perf Kokab (%)', 'perf_pilgub': 'Perf Pilgub (%)', 'perf_walbup': 'Perf Walbup (%)',
-        'part_pilpres': 'Part Pilpres (%)', 'part_ri': 'Part RI (%)', 'part_prov': 'Part Prov (%)',
-        'part_kokab': 'Part Kokab (%)', 'part_pilgub': 'Part Pilgub (%)', 'part_walbup': 'Part Walbup (%)',
-        'n_paslon_pilkada_kokab': 'Ratio Dukungan Paslon (%)'
+        'persen_pilpres': 'Perf Pilpres (%)', 'persen_pileg_ri': 'Perf RI (%)', 'persen_pileg_prov': 'Perf Prov (%)',
+        'persen_pileg_kokab': 'Perf Kokab (%)', 'persen_pilgub': 'Perf Pilgub (%)', 'persen_pilwalbup': 'Perf Walbup (%)',
+        'persen_part_pilpres': 'Part Pilpres (%)', 'persen_part_pileg_ri': 'Part RI (%)', 'persen_part_pileg_prov': 'Part Prov (%)',
+        'persen_part_pileg_kokab': 'Part Kab (%)', 'persen_part_pilgub': 'Part Gub (%)', 'persen_part_pilwalbup': 'Part Wkt (%)',
+        'persen_baseline_pilwalbup': 'Ratio Dukungan Paslon (%)'
     }
     
     df = pd.DataFrame(data)
@@ -119,9 +119,9 @@ def zscore_normalization_view(request):
         
     main_party, kecamatan_data, extra_context = ElectoralDataEngine().run()
     attributes = [
-        'perf_pilpres', 'perf_ri', 'perf_prov', 'perf_kokab', 'perf_pilgub', 'perf_walbup',
-        'part_pilpres', 'part_ri', 'part_prov', 'part_kokab', 'part_pilgub', 'part_walbup',
-        'n_paslon_pilkada_kokab'
+        'persen_pilpres', 'persen_pileg_ri', 'persen_pileg_prov', 'persen_pileg_kokab', 'persen_pilgub', 'persen_pilwalbup',
+        'persen_part_pilpres', 'persen_part_pileg_ri', 'persen_part_pileg_prov', 'persen_part_pileg_kokab', 'persen_part_pilgub', 'persen_part_pilwalbup',
+        'persen_baseline_pilwalbup'
     ]
     
     df = pd.DataFrame(kecamatan_data)
@@ -129,7 +129,7 @@ def zscore_normalization_view(request):
     
     if not df.empty:
         X_scaled = ClusteringEngine.scale_data(df, attributes)
-        scaled_df = pd.DataFrame(X_scaled, columns=[f'z_{attr}' for attr in attributes])
+        scaled_df = pd.DataFrame(X_scaled, columns=[f'z_{attr}' for attr in attributes]).round(3)
         full_df = pd.concat([df, scaled_df], axis=1)
         zscore_data = full_df.to_dict('records')
 
@@ -151,9 +151,9 @@ def export_zscore_excel(request):
     selected_party_id = request.GET.get('partai_utama')
     main_party, kecamatan_data, extra = ElectoralDataEngine(selected_party_id).run()
     attributes = [
-        'perf_pilpres', 'perf_ri', 'perf_prov', 'perf_kokab', 'perf_pilgub', 'perf_walbup',
-        'part_pilpres', 'part_ri', 'part_prov', 'part_kokab', 'part_pilgub', 'part_walbup',
-        'n_paslon_pilkada_kokab'
+        'persen_pilpres', 'persen_pileg_ri', 'persen_pileg_prov', 'persen_pileg_kokab', 'persen_pilgub', 'persen_pilwalbup',
+        'persen_part_pilpres', 'persen_part_pileg_ri', 'persen_part_pileg_prov', 'persen_part_pileg_kokab', 'persen_part_pilgub', 'persen_part_pilwalbup',
+        'persen_baseline_pilwalbup'
     ]
     
     df = pd.DataFrame(kecamatan_data)
@@ -188,9 +188,9 @@ def clustering_validation_view(request):
     selected_party_id = request.GET.get('partai_utama')
     main_party, kecamatan_data, extra = ElectoralDataEngine(selected_party_id).run()
     attributes = [
-        'perf_pilpres', 'perf_ri', 'perf_prov', 'perf_kokab', 'perf_pilgub', 'perf_walbup',
-        'part_pilpres', 'part_ri', 'part_prov', 'part_kokab', 'part_pilgub', 'part_walbup',
-        'n_paslon_pilkada_kokab'
+        'persen_pilpres', 'persen_pileg_ri', 'persen_pileg_prov', 'persen_pileg_kokab', 'persen_pilgub', 'persen_pilwalbup',
+        'persen_part_pilpres', 'persen_part_pileg_ri', 'persen_part_pileg_prov', 'persen_part_pileg_kokab', 'persen_part_pilgub', 'persen_part_pilwalbup',
+        'persen_baseline_pilwalbup'
     ]
     
     df = pd.DataFrame(kecamatan_data)
@@ -248,9 +248,9 @@ def clustering_results_view(request):
     selected_party_id = request.GET.get('partai_utama')
     main_party, kecamatan_data, extra = ElectoralDataEngine(selected_party_id).run()
     attributes = [
-        'perf_pilpres', 'perf_ri', 'perf_prov', 'perf_kokab', 'perf_pilgub', 'perf_walbup',
-        'part_pilpres', 'part_ri', 'part_prov', 'part_kokab', 'part_pilgub', 'part_walbup',
-        'n_paslon_pilkada_kokab'
+        'persen_pilpres', 'persen_pileg_ri', 'persen_pileg_prov', 'persen_pileg_kokab', 'persen_pilgub', 'persen_pilwalbup',
+        'persen_part_pilpres', 'persen_part_pileg_ri', 'persen_part_pileg_prov', 'persen_part_pileg_kokab', 'persen_part_pilgub', 'persen_part_pilwalbup',
+        'persen_baseline_pilwalbup'
     ]
     attr_labels = [
         'Perf Pres', 'Perf RI', 'Perf Prov', 'Perf Kab', 'Perf Gub', 'Perf Wkt',
@@ -274,7 +274,7 @@ def clustering_results_view(request):
         # Hitung rata-rata tiap atribut per cluster (untuk profiling)
         for c in range(k_final):
             cluster_df = df[df['cluster_label'] == c]
-            means = cluster_df[attributes].mean().round(2).tolist()
+            means = cluster_df[attributes].mean().round(3).tolist()
             c_style = cluster_info.get(c, {'name': f'Klaster {c}', 'color': '#94a3b8'})
             centroid_data.append({'cluster': c, 'name': c_style['name'], 'color': c_style['color'], 'count': len(cluster_df), 'means': means})
         
@@ -354,7 +354,7 @@ def clustering_gis_view(request):
     kokab_stats_12, kokab_groups = {}, defaultdict(list)
     for d in kecamatan_data: kokab_groups[d['kab_kota']].append(d)
     for kab, items in kokab_groups.items():
-        kokab_stats_12[kab] = {k: sum(i[k] for i in items) / len(items) if items else 0 for k in ['perf_pilpres', 'perf_ri', 'perf_prov', 'perf_kokab', 'perf_pilgub', 'perf_walbup', 'part_pilpres', 'part_ri', 'part_prov', 'part_kokab', 'part_pilgub', 'part_walbup']}
+        kokab_stats_12[kab] = {k: sum(i[k] for i in items) / len(items) if items else 0 for k in ['persen_pilpres', 'persen_pileg_ri', 'persen_pileg_prov', 'persen_pileg_kokab', 'persen_pilgub', 'persen_pilwalbup', 'persen_part_pilpres', 'persen_part_pileg_ri', 'persen_part_pileg_prov', 'persen_part_pileg_kokab', 'persen_part_pilgub', 'persen_part_pilwalbup']}
     
     def new_stats(): return {k: {'sah': 0, 'tsah': 0, 'tot': 0, 'items': {}} for k in ['pilpres', 'ri', 'prov', 'kokab', 'pilgub', 'walbup']}
     global_s, kokab_s, kec_s, meta_dict = new_stats(), defaultdict(new_stats), defaultdict(new_stats), defaultdict(dict)

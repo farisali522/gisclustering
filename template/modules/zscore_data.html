@@ -78,7 +78,7 @@
                     <tr class="bg-gray-50">
                         <th class="sticky left-0 z-50 px-4 py-4 text-xs font-black uppercase tracking-widest text-gray-500 bg-gray-50 border-b border-r border-gray-100 sticky-col-shadow">Kecamatan</th>
                         {% for attr in attributes %}
-                        <th class="px-1.5 py-4 text-[9px] font-black uppercase text-gray-400 border-b border-gray-100 text-center">{{ attr|replace:'perf_,P: '|replace:'part_,T: '|replace:'n_paslon_pilkada_kokab,Ratio Duk' }}</th>
+                        <th class="px-1.5 py-4 text-[9px] font-black uppercase text-gray-400 border-b border-gray-100 text-center">{{ attr|replace:'persen_part_,T: '|replace:'persen_,P: '|replace:'persen_baseline_pilwalbup,Ratio Duk' }}</th>
                         {% endfor %}
                     </tr>
                 </thead>
@@ -99,7 +99,7 @@
                             {% if z_val > 0.5 %}bg-green-50 text-green-700
                             {% elif z_val < -0.5 %}bg-red-50 text-red-600
                             {% else %}text-gray-400{% endif %}">
-                            {{ z_val|floatformat:2 }}
+                            {{ z_val|floatformat:3 }}
                         </td>
                         {% endwith %}
                         {% endwith %}

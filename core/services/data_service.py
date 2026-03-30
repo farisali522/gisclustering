@@ -135,7 +135,7 @@ class ElectoralDataEngine:
             t_pilkada_c = Coalesce(F('tps_pilkada__rekap_tps_pilkada'), 0),
             d_pilkada_c = Coalesce(F('tps_pilkada__rekap_dpt_pilkada'), 0),
             
-        ).order_by('kab_kota__nama_kokab', 'nama_kecamatan')
+        ).order_by('kode_kecamatan')
 
     # --------------------------------------------------------------------------
     # ALUR EKSEKUSI (Execution Flow)
@@ -153,30 +153,30 @@ class ElectoralDataEngine:
 
     def _format_kec_item(self, k, n_paslon):
         """Membersihkan mentahan database menjadi objek data yang siap diklasifikasi."""
-        def pct(v, s): return round((v / s) * 100, 2) if s > 0 else 0
-        def part_pct(sah, tsah, dpt): return round(((sah + tsah) / dpt) * 100, 2) if dpt > 0 else 0
+        def pct(v, s): return round((v / s) * 100, 3) if s > 0 else 0
+        def part_pct(sah, tsah, dpt): return round(((sah + tsah) / dpt) * 100, 3) if dpt > 0 else 0
         
         return {
             'id': k.id, 'kode': k.kode_kecamatan, 'kab_kota': k.kab_kota.nama_kokab, 'kecamatan': k.nama_kecamatan,
             
             # Persentase Performa Suara
-            'perf_pilpres': pct(k.perf_pilpres_votes, k.perf_pilpres_sah),
-            'perf_ri':      pct(k.perf_ri_votes, k.perf_ri_sah),
-            'perf_prov':    pct(k.perf_prov_votes, k.perf_prov_sah),
-            'perf_kokab':   pct(k.perf_kokab_votes, k.perf_kokab_sah),
-            'perf_pilgub':  pct(k.perf_pilgub_votes, k.perf_pilgub_sah),
-            'perf_walbup':  pct(k.perf_walbup_votes, k.perf_walbup_sah),
+            'persen_pilpres': pct(k.perf_pilpres_votes, k.perf_pilpres_sah),
+            'persen_pileg_ri':      pct(k.perf_ri_votes, k.perf_ri_sah),
+            'persen_pileg_prov':    pct(k.perf_prov_votes, k.perf_prov_sah),
+            'persen_pileg_kokab':   pct(k.perf_kokab_votes, k.perf_kokab_sah),
+            'persen_pilgub':  pct(k.perf_pilgub_votes, k.perf_pilgub_sah),
+            'persen_pilwalbup':  pct(k.perf_walbup_votes, k.perf_walbup_sah),
             
             # Persentase Partisipasi Pemilih
-            'part_pilpres': part_pct(k.part_pilpres_sah, k.part_pilpres_tdk_sah, k.part_pilpres_dpt),
-            'part_ri':      part_pct(k.part_ri_sah, k.part_ri_tdk_sah, k.part_pilpres_dpt),
-            'part_prov':    part_pct(k.part_prov_sah, k.part_prov_tdk_sah, k.part_pilpres_dpt),
-            'part_kokab':   part_pct(k.part_kokab_sah, k.part_kokab_tdk_sah, k.part_pilpres_dpt),
-            'part_pilgub':  part_pct(k.part_pilgub_sah, k.part_pilgub_tdk_sah, k.part_pilgub_dpt),
-            'part_walbup':  part_pct(k.part_walbup_sah, k.part_walbup_tdk_sah, k.part_pilgub_dpt),
+            'persen_part_pilpres': part_pct(k.part_pilpres_sah, k.part_pilpres_tdk_sah, k.part_pilpres_dpt),
+            'persen_part_pileg_ri':      part_pct(k.part_ri_sah, k.part_ri_tdk_sah, k.part_pilpres_dpt),
+            'persen_part_pileg_prov':    part_pct(k.part_prov_sah, k.part_prov_tdk_sah, k.part_pilpres_dpt),
+            'persen_part_pileg_kokab':   part_pct(k.part_kokab_sah, k.part_kokab_tdk_sah, k.part_pilpres_dpt),
+            'persen_part_pilgub':  part_pct(k.part_pilgub_sah, k.part_pilgub_tdk_sah, k.part_pilgub_dpt),
+            'persen_part_pilwalbup':  part_pct(k.part_walbup_sah, k.part_walbup_tdk_sah, k.part_pilgub_dpt),
             
             # Parameter Tambahan
-            'n_paslon_pilkada_kokab': round((1 / n_paslon) * 100, 2) if n_paslon > 0 else 0,
+            'persen_baseline_pilwalbup': (1 / n_paslon) * 100 if n_paslon > 0 else 0,
             
             'raw': {
                 'pilpres_votes': k.perf_pilpres_votes, 'pilpres_sah': k.perf_pilpres_sah, 'pilpres_tsah': k.part_pilpres_tdk_sah,

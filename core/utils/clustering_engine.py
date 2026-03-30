@@ -36,7 +36,8 @@ class ClusteringEngine:
         if df.empty: return None
         X = df[attributes]
         scaler = StandardScaler()
-        return scaler.fit_transform(X)
+        X_scaled = scaler.fit_transform(X)
+        return np.round(X_scaled, 3)
 
     # --------------------------------------------------------------------------
     # BAGIAN 2: ELBOW METHOD (SSE / Inersi)
@@ -135,7 +136,7 @@ class ClusteringEngine:
         centroids = []
         for cid in sorted(df_labeled['cluster_label'].unique()):
             cluster_df = df_labeled[df_labeled['cluster_label'] == cid]
-            means = cluster_df[attributes].mean().round(2).to_dict()
+            means = cluster_df[attributes].mean().round(3).to_dict()
             centroids.append({'cluster': int(cid), 'means': means})
         return centroids
 

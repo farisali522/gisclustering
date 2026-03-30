@@ -132,23 +132,23 @@
                         </td>
                         
                         <!-- 6 Kolom Performa -->
-                        <td class="px-1.5 py-3 text-[10px] font-black text-maroon-900 bg-maroon-50/10">{{ d.perf_pilpres|floatformat:1 }}%</td>
-                        <td class="px-1.5 py-3 text-[10px] font-bold text-maroon-800">{{ d.perf_ri|floatformat:1 }}%</td>
-                        <td class="px-1.5 py-3 text-[10px] font-bold text-maroon-800">{{ d.perf_prov|floatformat:1 }}%</td>
-                        <td class="px-1.5 py-3 text-[10px] font-bold text-maroon-800">{{ d.perf_kokab|floatformat:1 }}%</td>
-                        <td class="px-1.5 py-3 text-[10px] font-bold text-maroon-800">{{ d.perf_pilgub|floatformat:1 }}%</td>
-                        <td class="px-1.5 py-3 text-[10px] font-bold text-maroon-800">{{ d.perf_walbup|floatformat:1 }}%</td>
+                        <td class="px-1.5 py-3 text-[10px] font-black text-maroon-900 bg-maroon-50/10">{{ d.persen_pilpres|floatformat:3 }}%</td>
+                        <td class="px-1.5 py-3 text-[10px] font-bold text-maroon-800">{{ d.persen_pileg_ri|floatformat:3 }}%</td>
+                        <td class="px-1.5 py-3 text-[10px] font-bold text-maroon-800">{{ d.persen_pileg_prov|floatformat:3 }}%</td>
+                        <td class="px-1.5 py-3 text-[10px] font-bold text-maroon-800">{{ d.persen_pileg_kokab|floatformat:3 }}%</td>
+                        <td class="px-1.5 py-3 text-[10px] font-bold text-maroon-800">{{ d.persen_pilgub|floatformat:3 }}%</td>
+                        <td class="px-1.5 py-3 text-[10px] font-bold text-maroon-800">{{ d.persen_pilwalbup|floatformat:3 }}%</td>
 
                         <!-- 6 Kolom Partisipasi -->
-                        <td class="px-1.5 py-3 text-[10px] font-bold text-gray-500 bg-gray-50/30">{{ d.part_pilpres|floatformat:1 }}%</td>
-                        <td class="px-1.5 py-3 text-[10px] font-medium text-gray-400">{{ d.part_ri|floatformat:1 }}%</td>
-                        <td class="px-1.5 py-3 text-[10px] font-medium text-gray-400">{{ d.part_prov|floatformat:1 }}%</td>
-                        <td class="px-1.5 py-3 text-[10px] font-medium text-gray-400">{{ d.part_kokab|floatformat:1 }}%</td>
-                        <td class="px-1.5 py-3 text-[10px] font-medium text-gray-400">{{ d.part_pilgub|floatformat:1 }}%</td>
-                        <td class="px-1.5 py-3 text-[10px] font-medium text-gray-400">{{ d.part_walbup|floatformat:1 }}%</td>
+                        <td class="px-1.5 py-3 text-[10px] font-bold text-gray-500 bg-gray-50/30">{{ d.persen_part_pilpres|floatformat:3 }}%</td>
+                        <td class="px-1.5 py-3 text-[10px] font-medium text-gray-400">{{ d.persen_part_pileg_ri|floatformat:3 }}%</td>
+                        <td class="px-1.5 py-3 text-[10px] font-medium text-gray-400">{{ d.persen_part_pileg_prov|floatformat:3 }}%</td>
+                        <td class="px-1.5 py-3 text-[10px] font-medium text-gray-400">{{ d.persen_part_pileg_kokab|floatformat:3 }}%</td>
+                        <td class="px-1.5 py-3 text-[10px] font-medium text-gray-400">{{ d.persen_part_pilgub|floatformat:3 }}%</td>
+                        <td class="px-1.5 py-3 text-[10px] font-medium text-gray-400">{{ d.persen_part_pilwalbup|floatformat:3 }}%</td>
 
                         <!-- 1 Kolom Kompetisi -->
-                        <td class="px-1.5 py-3 text-[10px] font-black text-indigo-900 bg-indigo-50/10 text-center">{{ d.n_paslon_pilkada_kokab|floatformat:1 }}%</td>
+                        <td class="px-1.5 py-3 text-[10px] font-black text-indigo-900 bg-indigo-50/10 text-center">{{ d.persen_baseline_pilwalbup|floatformat:3 }}%</td>
                     </tr>
                     {% empty %}
                     <tr>
