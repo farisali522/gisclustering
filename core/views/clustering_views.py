@@ -42,6 +42,12 @@ def clustering_atribut_view(request):
     count_walbup = koalisi_walbup_qs.count()
     semua_paslon_walbup = [item.paslon for item in koalisi_walbup_qs]
 
+    # Filter Kokab
+    list_kokab = sorted(list(set([d['kab_kota'] for d in kecamatan_data])))
+    selected_kokab = request.GET.get('kokab', '')
+    if selected_kokab:
+        kecamatan_data = [d for d in kecamatan_data if d['kab_kota'] == selected_kokab]
+
     # Logika Paginasi (20 baris per halaman)
     show_all = request.GET.get('show_all') == 'true'
     page = request.GET.get('page', 1)
@@ -58,6 +64,8 @@ def clustering_atribut_view(request):
             page_obj = paginator.page(paginator.num_pages)
 
     context = {
+        'list_kokab': list_kokab,
+        'selected_kokab': selected_kokab,
         'kecamatan_data': page_obj,
         'selected_party': main_party,
         'paslon_pilpres': paslon_pilpres,
@@ -117,7 +125,14 @@ def zscore_normalization_view(request):
         messages.warning(request, "Akses ditolak. Halaman ini hanya untuk keperluan teknis Admin.")
         return redirect('dashboard')
         
-    main_party, kecamatan_data, extra_context = ElectoralDataEngine().run()
+    selected_party_id = request.GET.get('partai_utama') or request.POST.get('partai_utama')
+    main_party, kecamatan_data, extra_context = ElectoralDataEngine(selected_party_id).run()
+
+    # Filter Kokab
+    list_kokab = sorted(list(set([d['kab_kota'] for d in kecamatan_data])))
+    selected_kokab = request.GET.get('kokab', '')
+    if selected_kokab:
+        kecamatan_data = [d for d in kecamatan_data if d['kab_kota'] == selected_kokab]
     attributes = [
         'persen_pilpres', 'persen_pileg_ri', 'persen_pileg_prov', 'persen_pileg_kokab', 'persen_pilgub', 'persen_pilwalbup',
         'persen_part_pilpres', 'persen_part_pileg_ri', 'persen_part_pileg_prov', 'persen_part_pileg_kokab', 'persen_part_pilgub', 'persen_part_pilwalbup',
@@ -134,6 +149,8 @@ def zscore_normalization_view(request):
         zscore_data = full_df.to_dict('records')
 
     context = {
+        'list_kokab': list_kokab,
+        'selected_kokab': selected_kokab,
         'page_title': 'Transparansi Normalisasi Z-Score',
         'zscore_data': zscore_data,
         'selected_party': main_party,
@@ -150,6 +167,12 @@ def export_zscore_excel(request):
         
     selected_party_id = request.GET.get('partai_utama')
     main_party, kecamatan_data, extra = ElectoralDataEngine(selected_party_id).run()
+
+    # Apply Kokab Filter
+    selected_kokab = request.GET.get('kokab', '')
+    if selected_kokab:
+        kecamatan_data = [d for d in kecamatan_data if d['kab_kota'] == selected_kokab]
+
     attributes = [
         'persen_pilpres', 'persen_pileg_ri', 'persen_pileg_prov', 'persen_pileg_kokab', 'persen_pilgub', 'persen_pilwalbup',
         'persen_part_pilpres', 'persen_part_pileg_ri', 'persen_part_pileg_prov', 'persen_part_pileg_kokab', 'persen_part_pilgub', 'persen_part_pilwalbup',
@@ -215,7 +238,7 @@ def clustering_validation_view(request):
                 r['rank_silhouette'] = next((i + 1 for i, s in enumerate(silh_desc) if s['k'] == r['k']), 99)
                 r['is_top3_silhouette'] = (r['rank_silhouette'] <= 3)
                 r['rank_dbi'] = next((i + 1 for i, d in enumerate(dbi_asc) if d['k'] == r['k']), 99)
-                r['is_top2_dbi'] = (r['rank_dbi'] <= 2)
+                r['is_top3_dbi'] = (r['rank_dbi'] <= 3)
                 r['is_elbow'] = (r['k'] == elbow_k)
 
     context = {
@@ -259,6 +282,9 @@ def clustering_results_view(request):
     df = pd.DataFrame(kecamatan_data)
     pca_data, centroid_data, result_rows = [], [], []
 
+    list_kokab = sorted(list(set([d['kab_kota'] for d in kecamatan_data]))) if kecamatan_data else []
+    selected_kokab = request.GET.get('kokab', '')
+
     if not df.empty:
         X_scaled = ClusteringEngine.scale_data(df, attributes)
         labels = ClusteringEngine.run_kmeans(X_scaled, k_final)
@@ -279,13 +305,36 @@ def clustering_results_view(request):
             centroid_data.append({'cluster': c, 'name': c_style['name'], 'color': c_style['color'], 'count': len(cluster_df), 'means': means})
         
         for _, row in df.iterrows():
+            if selected_kokab and row['kab_kota'] != selected_kokab:
+                continue
+                
             cid = int(row['cluster_label'])
             c_style = cluster_info.get(cid, {'name': f'Klaster {cid}', 'color': '#94a3b8'})
             result_rows.append({'kode': row['kode'], 'kab_kota': row['kab_kota'], 'kecamatan': row['kecamatan'], 'cluster': cid, 'cluster_name': c_style['name'], 'color': c_style['color']})
 
+        # Hitung Cross Tabulation Rekap Kokab
+        rekap_kokab = []
+        crosstab = pd.crosstab(df['kab_kota'], df['cluster_label'])
+        
+        # Mapping kab_kota -> prefix kode untuk keperluan sorting (misal '3201' untuk Bogor)
+        kab_kode_map = {row['kab_kota']: str(row['kode'])[:4] for _, row in df.iterrows()}
+        sorted_kabs = sorted(df['kab_kota'].unique(), key=lambda k: kab_kode_map.get(k, k))
+
+        for kab in sorted_kabs:
+            if selected_kokab and kab != selected_kokab:
+                continue
+            counts = []
+            for c in range(k_final):
+                val = int(crosstab.loc[kab, c]) if c in crosstab.columns and kab in crosstab.index else 0
+                counts.append({'cluster': c, 'count': val, 'color': cluster_info.get(c, {}).get('color', '#94a3b8')})
+            rekap_kokab.append({'kab_kota': kab, 'counts': counts, 'total': sum(c['count'] for c in counts)})
+
     context = {
+        'list_kokab': list_kokab,
+        'selected_kokab': selected_kokab,
         'page_title': 'Hasil Cluster', 'result_rows': result_rows, 'result_rows_json': result_rows, 'pca_data': pca_data,
         'centroid_data': centroid_data, 'attr_labels': attr_labels, 'attr_labels_list': attr_labels, 'k_final': k_final,
+        'rekap_kokab': rekap_kokab if 'rekap_kokab' in locals() else [],
         'acc_pca': acc_pca if not df.empty else 0, 'selected_party': main_party, 'k_range': range(2, 11),
         'k_final_for_export': k_final, 'cluster_colors': CLUSTER_COLORS,
     }
@@ -308,6 +357,11 @@ def export_clustering_results_excel(request):
     X_scaled = ClusteringEngine.scale_data(df, attributes)
     labels = ClusteringEngine.run_kmeans(X_scaled, k_final)
     df['Label Klaster'] = labels
+    
+    selected_kokab = request.GET.get('kokab', '')
+    if selected_kokab:
+        df = df[df['kab_kota'] == selected_kokab]
+        
     output_df = df[['kode', 'kab_kota', 'kecamatan', 'Label Klaster']].copy()
     output_df.columns = ['Kode Kecamatan', 'Kab/Kota', 'Nama Kecamatan', 'Label Klaster']
     output_df = output_df.sort_values(['Label Klaster', 'Kab/Kota', 'Nama Kecamatan'])

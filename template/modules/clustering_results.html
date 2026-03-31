@@ -48,7 +48,6 @@
             </div>
             <div>
                 <h1 class="text-xl font-black text-gray-900 uppercase">Hasil <span class="text-maroon-900">Cluster</span></h1>
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Tahapan CRISP-DM 5 & 6 — Evaluation & Deployment</p>
             </div>
         </div>
 
@@ -94,28 +93,29 @@
         </div>
     </form>
     
-    <!-- Legend: Klaster Hasil Penelitian -->
-    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-        {% for cid, color in cluster_colors.items %}
-        {% if cid < 5 %}
-        <div class="bg-white p-4 rounded-2xl border-l-4 shadow-sm relative overflow-hidden cluster-border-{{ cid }}">
-            <div class="absolute -right-2 -top-2 font-black text-4xl opacity-10 cluster-text-{{ cid }}">{{ cid }}</div>
-            <p class="text-[10px] font-black text-gray-800 leading-tight uppercase">Klaster {{ cid }}</p>
-            <p class="text-[8px] text-gray-400 mt-1 italic">Berdasarkan hasil pemrosesan model K-Means.</p>
-        </div>
-        {% endif %}
-        {% endfor %}
-    </div>
+
 
     <!-- Results Table -->
     <div class="bg-white rounded-[2rem] border border-gray-100 shadow-2xl shadow-gray-200/50 overflow-hidden mb-8">
         <div class="px-8 py-6 border-b border-gray-50 bg-gray-50/30 flex justify-between items-center">
             <h2 class="text-sm font-black text-gray-900 uppercase italic">Tabel Master <span class="text-maroon-900">Label Klaster</span></h2>
             <div class="flex items-center gap-3">
-                <span class="px-3 py-1 bg-maroon-900/10 text-maroon-900 rounded-lg text-[10px] font-bold border border-maroon-900/10">{{ result_rows|length }} Kecamatan</span>
+                <!-- Filter Kokab -->
+                <form method="GET" class="mr-1 flex items-center gap-2">
+                    <input type="hidden" name="k" value="{{ k_final }}">
+                    {% if selected_party %}<input type="hidden" name="partai_utama" value="{{ selected_party.id }}">{% endif %}
+                    <select name="kokab" onchange="this.form.submit()" class="bg-white border border-gray-200 text-gray-700 text-[10px] uppercase font-bold rounded-lg px-3 py-2 flex items-center shadow-sm focus:ring-maroon-900 focus:border-maroon-900 outline-none cursor-pointer">
+                        <option value="">Semua Kab/Kota</option>
+                        {% for k_opt in list_kokab %}
+                            <option value="{{ k_opt }}" {% if selected_kokab == k_opt %}selected{% endif %}>{{ k_opt }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+
+                <span class="px-3 py-1 bg-maroon-900/10 text-maroon-900 rounded-lg text-[10px] font-bold border border-maroon-900/10 whitespace-nowrap">{{ result_rows|length }} Kecamatan</span>
                 {% if result_rows %}
-                <a href="{% url 'export-clustering-results-excel' %}?k={{ k_final }}{% if selected_party %}&partai_utama={{ selected_party.id }}{% endif %}"
-                   class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-xl text-[11px] font-black hover:bg-emerald-700 transition-all shadow-sm">
+                <a href="{% url 'export-clustering-results-excel' %}?k={{ k_final }}{% if selected_party %}&partai_utama={{ selected_party.id }}{% endif %}&kokab={{ selected_kokab|urlencode }}"
+                   class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-xl text-[11px] font-black hover:bg-emerald-700 transition-all shadow-sm whitespace-nowrap">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                     Export Excel
                 </a>
@@ -147,10 +147,20 @@
                         </td>
                     </tr>
                     {% empty %}
-                    <tr><td colspan="4" class="px-8 py-20 text-center text-gray-400 italic">Belum ada data. Klik "Run & Simpan Clustering" untuk memulai.</td></tr>
+                    <tr><td colspan="5" class="px-8 py-20 text-center text-gray-400 italic">Belum ada data. Klik "Run & Simpan Clustering" untuk memulai.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
+        </div>
+        <!-- Table Legend Footer -->
+        <div class="px-8 py-4 border-t border-gray-50 bg-gray-50/50 flex flex-wrap items-center gap-4">
+            <span class="text-[10px] font-black uppercase text-gray-400 tracking-widest mr-2">WARNA</span>
+            {% for c in centroid_data %}
+            <div class="flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full shadow-sm" style="background-color: {{ c.color }}"></span>
+                <span class="text-[10px] font-bold text-gray-600 uppercase">{{ c.name }}</span>
+            </div>
+            {% endfor %}
         </div>
     </div>
 
@@ -170,6 +180,30 @@
             </div>
             <div class="h-[500px]">
                 <canvas id="pcaChart"></canvas>
+            </div>
+            
+            <!-- PCA Stats Footer -->
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 border-t border-gray-50 pt-6">
+                <!-- PCA 1 Min -->
+                <div class="bg-blue-50/30 rounded-xl p-4 border border-blue-100/50 flex flex-col justify-center min-w-0 h-[80px]">
+                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-wider block mb-1.5">PCA 1 Min (Sumbu X)</span>
+                    <div id="pca1-min" class="text-base font-mono font-black text-blue-900 flex items-center truncate">0.000</div>
+                </div>
+                <!-- PCA 1 Max -->
+                <div class="bg-blue-50/30 rounded-xl p-4 border border-blue-100/50 flex flex-col justify-center min-w-0 h-[80px]">
+                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-wider block mb-1.5">PCA 1 Max (Sumbu X)</span>
+                    <div id="pca1-max" class="text-base font-mono font-black text-blue-900 flex items-center truncate">0.000</div>
+                </div>
+                <!-- PCA 2 Min -->
+                <div class="bg-emerald-50/30 rounded-xl p-4 border border-emerald-100/50 flex flex-col justify-center min-w-0 h-[80px]">
+                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-wider block mb-1.5">PCA 2 Min (Sumbu Y)</span>
+                    <div id="pca2-min" class="text-base font-mono font-black text-emerald-900 flex items-center truncate">0.000</div>
+                </div>
+                <!-- PCA 2 Max -->
+                <div class="bg-emerald-50/30 rounded-xl p-4 border border-emerald-100/50 flex flex-col justify-center min-w-0 h-[80px]">
+                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-wider block mb-1.5">PCA 2 Max (Sumbu Y)</span>
+                    <div id="pca2-max" class="text-base font-mono font-black text-emerald-900 flex items-center truncate">0.000</div>
+                </div>
             </div>
         </div>
 
@@ -195,6 +229,55 @@
                         </tr>
                     </thead>
                     <tbody id="heatmapBody" class="divide-y divide-gray-50"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Cross-Tabulation Rekap Kokab -->
+        <div class="bg-white rounded-[2rem] border border-gray-100 shadow-xl p-8 mb-8">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-8 h-8 bg-purple-50 rounded-xl flex items-center justify-center text-purple-600">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                </div>
+                <div>
+                    <h3 class="text-xs font-black text-gray-900 uppercase tracking-wider">Rekapitulasi Sebaran Klaster</h3>
+                    <p class="text-[9px] text-gray-400 mt-0.5">Distribusi jumlah kecamatan pada masing-masing klaster per Kabupaten/Kota</p>
+                </div>
+            </div>
+            <div class="overflow-x-auto overflow-y-auto max-h-[800px] custom-scrollbar border border-gray-100 rounded-xl relative">
+                <table class="w-full text-left border-collapse text-[10px]">
+                    <thead class="border-b border-gray-100 sticky top-0 z-20 shadow-sm">
+                        <tr>
+                            <th class="px-4 py-3 font-black text-gray-700 uppercase tracking-widest sticky left-0 bg-gray-100 z-30 w-[180px] border-r border-gray-200">Kabupaten / Kota</th>
+                            {% for c in centroid_data %}
+                            <th class="px-3 py-3 text-center bg-gray-50">
+                                <span class="inline-flex items-center justify-center w-5 h-5 rounded-full text-white text-[8px] font-black shadow-sm" style="background-color: {{ c.color }}">{{ c.cluster }}</span>
+                            </th>
+                            {% endfor %}
+                            <th class="px-4 py-3 font-black text-gray-700 uppercase tracking-widest text-center bg-gray-50">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-50">
+                        {% for r in rekap_kokab %}
+                        <tr class="hover:bg-gray-50/80 transition-colors group">
+                            <td class="px-4 py-2 font-bold text-gray-700 whitespace-nowrap sticky left-0 bg-white group-hover:bg-gray-50/80 z-10 border-r border-gray-50">{{ r.kab_kota }}</td>
+                            {% for c in r.counts %}
+                            <td class="px-3 py-2 text-center">
+                                {% if c.count > 0 %}
+                                    <span class="inline-flex px-2 py-1 rounded-md font-mono font-black text-gray-800" style="background-color: {{ c.color }}33; color: {{ c.color }}">{{ c.count }}</span>
+                                {% else %}
+                                    <span class="text-gray-300 font-mono">-</span>
+                                {% endif %}
+                            </td>
+                            {% endfor %}
+                            <td class="px-4 py-2 text-center font-black text-gray-800 bg-gray-50/50 border-l border-gray-50/50">{{ r.total }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="100%" class="px-6 py-12 text-center text-gray-400 font-medium italic">Data tidak tersedia.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -227,6 +310,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const pcaCanvas = document.getElementById('pcaChart');
     if (pcaCanvas && Object.keys(grouped).length > 0) {
+        // Calculate PCA Mins and Maxs with their associated Regions
+        let p1Min = pcaData.reduce((prev, curr) => prev.x < curr.x ? prev : curr);
+        let p1Max = pcaData.reduce((prev, curr) => prev.x > curr.x ? prev : curr);
+        let p2Min = pcaData.reduce((prev, curr) => prev.y < curr.y ? prev : curr);
+        let p2Max = pcaData.reduce((prev, curr) => prev.y > curr.y ? prev : curr);
+        
+        const stackLabel = (val, name, kab) => `${val.toFixed(3)} <div class="flex flex-col ml-3 border-l-[1.5px] border-gray-200/70 pl-3 leading-tight min-w-0"><span class="text-[10px] text-gray-700 font-black font-sans uppercase truncate">${name}</span><span class="text-[8px] text-gray-400 font-sans font-bold uppercase truncate">${kab}</span></div>`;
+
+        document.getElementById('pca1-min').innerHTML = stackLabel(p1Min.x, p1Min.name, p1Min.kab);
+        document.getElementById('pca1-max').innerHTML = stackLabel(p1Max.x, p1Max.name, p1Max.kab);
+        document.getElementById('pca2-min').innerHTML = stackLabel(p2Min.y, p2Min.name, p2Min.kab);
+        document.getElementById('pca2-max').innerHTML = stackLabel(p2Max.y, p2Max.name, p2Max.kab);
+
         new Chart(pcaCanvas, {
             type: 'scatter',
             data: { datasets: Object.values(grouped) },

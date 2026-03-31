@@ -228,7 +228,7 @@
                 </div>
 
                 <!-- Pilwalbup Card (Interactive Candidates) -->
-                <div class="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm hover:shadow-md transition-all group overflow-visible relative">
+                <div class="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm hover:shadow-md transition-all group overflow-hidden relative flex flex-col h-full">
                     <div class="absolute top-0 right-0 w-24 h-24 bg-maroon-900/5 rounded-bl-full -mr-10 -mt-10 group-hover:scale-110 transition-transform"></div>
                     <div class="flex justify-between items-start mb-4">
                         <p class="text-[10px] font-bold text-maroon-900 uppercase tracking-widest flex items-center gap-2">
@@ -239,49 +239,36 @@
                             <span class="text-[8px] font-bold text-gray-400 uppercase tracking-tighter">Rekap Performa</span>
                         </div>
                     </div>
-                    <div class="flex items-center justify-between gap-4">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-2xl bg-maroon-50 flex flex-col items-center justify-center text-maroon-900 border-2 border-white shadow-sm flex-shrink-0">
-                                <span class="text-base font-black">{{ count_walbup }}</span>
-                                <span class="text-[7px] font-bold uppercase">Paslon</span>
-                            </div>
-                            <div>
-                                <h4 class="text-[10px] font-bold text-gray-900">Pasangan Calon</h4>
-                                <p class="text-[8px] text-gray-500 uppercase">Koalisi Terdaftar</p>
-                            </div>
+                    
+                    <div class="flex-1 mt-2">
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <h4 class="text-[9px] font-bold text-gray-500 uppercase">Total {{ count_walbup }} Koalisi Terdaftar</h4>
                         </div>
                         
-                        <!-- Dropdown Toggle -->
-                        <div class="relative">
-                            <button id="walbup-list-toggle" class="px-3 py-2 bg-gray-50 hover:bg-maroon-900 hover:text-white text-gray-500 text-[10px] font-bold rounded-xl transition-all flex items-center gap-2 border border-gray-100 shadow-sm">
-                                Daftar
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                            </button>
-                            <!-- Dropdown Content (Absolute positioned) -->
-                            <div id="walbup-list-dropdown" class="absolute right-0 mt-3 w-72 bg-white border border-gray-100 rounded-3xl shadow-2xl py-3 hidden z-50 max-h-80 overflow-y-auto custom-scrollbar">
-                                <div class="px-4 py-2 border-b border-gray-50 mb-2">
-                                    <p class="text-[10px] font-black uppercase text-maroon-900 tracking-widest">Daftar Paslon Koalisi</p>
+                        <div class="max-h-24 overflow-y-auto pr-2 custom-scrollbar space-y-1.5">
+                            {% for p in semua_paslon_walbup %}
+                            <div class="flex items-center gap-2 bg-gray-50/50 p-1.5 rounded-lg border border-gray-100 hover:bg-maroon-50 transition-colors">
+                                <div class="relative flex-shrink-0">
+                                    {% if p.foto_paslon %}
+                                        <img src="{{ p.foto_paslon.url }}" class="w-6 h-6 rounded-md object-cover border border-white shadow-sm">
+                                    {% else %}
+                                        <div class="w-6 h-6 rounded-md bg-gray-200 flex items-center justify-center text-gray-400 text-[8px] font-bold">{{ forloop.counter }}</div>
+                                    {% endif %}
+                                    <span class="absolute -top-1 -right-1 w-3 h-3 bg-maroon-900 text-gold-400 text-[6px] font-black rounded-full flex items-center justify-center border border-white">{{ p.no_urut_paslon|default:forloop.counter }}</span>
                                 </div>
-                                {% for p in semua_paslon_walbup %}
-                                <div class="px-4 py-3 hover:bg-maroon-50/50 transition-colors border-b border-gray-50 last:border-0">
-                                    <div class="flex items-center gap-3">
-                                        {% if p.foto_paslon %}
-                                            <img src="{{ p.foto_paslon.url }}" class="w-10 h-10 rounded-lg object-cover border border-white shadow-sm">
-                                        {% else %}
-                                            <div class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-300 text-xs font-bold">{{ forloop.counter }}</div>
-                                        {% endif %}
-                                        <div class="min-w-0">
-                                            <p class="text-[11px] font-bold text-gray-900 leading-tight">
-                                                {{ p.nama_calon }} - {{ p.nama_wakil|default:"-" }}
-                                            </p>
-                                            <p class="text-[9px] text-maroon-900 font-medium mt-0.5 uppercase tracking-tighter">{{ p.kab_kota.nama_kokab|default:"" }}</p>
-                                        </div>
-                                    </div>
+                                <div class="min-w-0 flex-1">
+                                    <p class="text-[9px] font-bold text-gray-900 leading-none truncate">
+                                        {{ p.nama_calon }}
+                                    </p>
+                                    <p class="text-[7px] text-gray-500 uppercase truncate mt-0.5">{{ p.kab_kota.nama_kokab|default:"-" }}</p>
                                 </div>
-                                {% empty %}
-                                <div class="px-4 py-6 text-center text-xs text-gray-400 italic">Data tidak ditemukan.</div>
-                                {% endfor %}
+                                <div class="text-right pr-1">
+                                    <span class="text-[10px] font-black text-maroon-900">{{ p.persentase_kokab }}%</span>
+                                </div>
                             </div>
+                            {% empty %}
+                            <p class="text-[9px] text-gray-400 italic">Data koalisi tidak ditemukan.</p>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
@@ -289,24 +276,6 @@
         </div>
     </div>
 
-    <!-- Script to handle executive dashboard interactions -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const walbupToggle = document.getElementById('walbup-list-toggle');
-            const walbupMenu = document.getElementById('walbup-list-dropdown');
-            if (walbupToggle && walbupMenu) {
-                walbupToggle.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    walbupMenu.classList.toggle('hidden');
-                });
-                window.addEventListener('click', (e) => {
-                    if (!walbupToggle.contains(e.target) && !walbupMenu.contains(e.target)) {
-                        walbupMenu.classList.add('hidden');
-                    }
-                });
-            }
-        });
-    </script>
 
     <!-- Fast Access Module -->
     <div class="mt-12 mb-8">
@@ -347,12 +316,12 @@
             </a>
             {% endif %}
 
-            <!-- 5. Clustering GIS -->
+            <!-- 5. Geospasial Klaster -->
             <a href="{% url 'clustering-gis' %}?partai_utama={{ selected_party.id }}" class="group bg-white rounded-2xl p-4 border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all flex flex-col items-center text-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-maroon-50 text-maroon-900 group-hover:bg-maroon-900 group-hover:text-gold-400 flex items-center justify-center transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2 2 2 0 012 2v.65M20 10.5a2 2 0 01-2 2H16.11a2 2 0 00-1.66.9l-.15.22a2 2 0 01-1.63.88h-1.22A2 2 0 009.6 18.28l-.1.32a2 2 0 01-.84 1.14l-1.14.73A2 2 0 016.36 21H5.16a2 2 0 01-1.63-.84l-1.07-1.42A2 2 0 012.1 17.5V17m18-6.5a2 2 0 01-2-2v-1a2 2 0 00-2-2H17"></path></svg>
                 </div>
-                <span class="text-[10px] font-bold text-gray-700 leading-tight">Clustering<br>GIS Peta</span>
+                <span class="text-[10px] font-bold text-gray-700 leading-tight">Geospasial<br>Klaster</span>
             </a>
 
             <!-- 6. Admin Panel -->

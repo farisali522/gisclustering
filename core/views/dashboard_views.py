@@ -28,7 +28,16 @@ def dashboard_view(request):
     
     koalisi_walbup_qs = KoalisiWalbup.objects.filter(partai=selected_party).select_related('paslon', 'paslon__kab_kota')
     count_walbup = koalisi_walbup_qs.count()
-    semua_paslon_walbup = [item.paslon for item in koalisi_walbup_qs]
+    
+    from pilwalbup.models import DetailSuaraWalbup
+    from django.db.models import Sum
+    semua_paslon_walbup = []
+    for item in koalisi_walbup_qs:
+        p_obj = item.paslon
+        suara_p = DetailSuaraWalbup.objects.filter(paslon=p_obj).aggregate(t=Sum('jumlah_suara'))['t'] or 0
+        suara_s_kokab = DetailSuaraWalbup.objects.filter(kecamatan__kab_kota=p_obj.kab_kota).aggregate(t=Sum('jumlah_suara'))['t'] or 0
+        p_obj.persentase_kokab = round((suara_p / suara_s_kokab * 100) if suara_s_kokab > 0 else 0, 2)
+        semua_paslon_walbup.append(p_obj)
 
     context = {
         'selected_party': selected_party,

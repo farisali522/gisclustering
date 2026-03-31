@@ -36,7 +36,6 @@
             </div>
             <div>
                 <h1 class="text-xl font-black text-gray-900 uppercase">Clustering <span class="text-maroon-900">Atribut</span></h1>
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Tahapan CRISP-DM 2 & 3 — Data Understanding & Data Preparation</p>
             </div>
         </div>
 
@@ -66,16 +65,30 @@
         <div class="p-8 border-b border-gray-50 flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
                 <h2 class="text-xl font-bold text-gray-900 leading-tight">Preview Data Atribut</h2>
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Found {{ total_kecamatan }} Kecamatan across 12 Dimensions</p>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Found {{ total_kecamatan }} Kecamatan across 13 Dimensions</p>
             </div>
             <div class="flex items-center gap-3">
+                <!-- Filter Kokab -->
+                <form method="GET" class="mr-1">
+                    <input type="hidden" name="partai_utama" value="{{ selected_party.id }}">
+                    {% if show_all %}
+                        <input type="hidden" name="show_all" value="true">
+                    {% endif %}
+                    <select name="kokab" onchange="this.form.submit()" class="bg-gray-50 border border-gray-200 text-gray-700 text-[10px] uppercase font-bold rounded-lg px-3 py-1.5 focus:ring-maroon-900 focus:border-maroon-900 outline-none cursor-pointer">
+                        <option value="">Semua Kab/Kota</option>
+                        {% for k in list_kokab %}
+                            <option value="{{ k }}" {% if selected_kokab == k %}selected{% endif %}>{{ k }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+
                 <!-- Toggle Show All -->
                 <div class="flex bg-gray-100 p-1 rounded-xl mr-2">
-                    <a href="?partai_utama={{ selected_party.id }}&show_all=false" 
+                    <a href="?partai_utama={{ selected_party.id }}&kokab={{ selected_kokab|urlencode }}&show_all=false" 
                        class="px-3 py-1.5 text-[10px] font-bold rounded-lg transition-all {% if not show_all %}bg-white text-maroon-900 shadow-sm{% else %}text-gray-400 hover:text-gray-600{% endif %}">
                         Paginated (20)
                     </a>
-                    <a href="?partai_utama={{ selected_party.id }}&show_all=true" 
+                    <a href="?partai_utama={{ selected_party.id }}&kokab={{ selected_kokab|urlencode }}&show_all=true" 
                        class="px-3 py-1.5 text-[10px] font-bold rounded-lg transition-all {% if show_all %}bg-white text-maroon-900 shadow-sm{% else %}text-gray-400 hover:text-gray-600{% endif %}">
                         Show All
                     </a>
@@ -163,14 +176,14 @@
             <p class="text-xs text-gray-500 font-medium">Page {{ kecamatan_data.number }} of {{ kecamatan_data.paginator.num_pages }}</p>
             <div class="flex gap-1">
                 {% if kecamatan_data.has_previous %}
-                    <a href="?partai_utama={{ selected_party.id }}&page={{ kecamatan_data.previous_page_number }}" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 text-gray-400 hover:text-maroon-900 transition-colors shadow-sm">
+                    <a href="?partai_utama={{ selected_party.id }}&kokab={{ selected_kokab|urlencode }}&page={{ kecamatan_data.previous_page_number }}" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 text-gray-400 hover:text-maroon-900 transition-colors shadow-sm">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                     </a>
                 {% endif %}
 
                 {% for i in kecamatan_data.paginator.page_range %}
                     {% if i > kecamatan_data.number|add:-3 and i < kecamatan_data.number|add:3 %}
-                        <a href="?partai_utama={{ selected_party.id }}&page={{ i }}" 
+                        <a href="?partai_utama={{ selected_party.id }}&kokab={{ selected_kokab|urlencode }}&page={{ i }}" 
                            class="w-8 h-8 flex items-center justify-center rounded-lg {% if kecamatan_data.number == i %}bg-maroon-900 text-gold-400 font-bold{% else %}bg-white border border-gray-200 text-gray-500 hover:text-maroon-900{% endif %} text-xs transition-all shadow-sm">
                             {{ i }}
                         </a>
@@ -178,7 +191,7 @@
                 {% endfor %}
 
                 {% if kecamatan_data.has_next %}
-                    <a href="?partai_utama={{ selected_party.id }}&page={{ kecamatan_data.next_page_number }}" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 text-gray-400 hover:text-maroon-900 transition-colors shadow-sm">
+                    <a href="?partai_utama={{ selected_party.id }}&kokab={{ selected_kokab|urlencode }}&page={{ kecamatan_data.next_page_number }}" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 text-gray-400 hover:text-maroon-900 transition-colors shadow-sm">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                     </a>
                 {% endif %}
