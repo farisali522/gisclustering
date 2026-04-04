@@ -77,9 +77,9 @@ Penelitian ini menggunakan kerangka kerja **CRISP-DM** (*Cross-Industry Standard
 ---
 
 ## 📊 Hasil Analisis (Preview)
-| Visualisasi PCA Terluar | Heatmap Karakteristik |
+| Analisis Titik Terluar (Fokus) | Sebaran Klaster Keseluruhan (PCA) |
 | :---: | :---: |
-| ![PCA](./clustering/Visualisasi_PCA_Fokus_Indikator%20Batas.png) | ![Heatmap](./clustering/Visualisasi_PCA_K5.png) |
+| ![PCA Fokus](./clustering/Visualisasi_PCA_Fokus_Indikator%20Batas.png) | ![PCA Standar](./clustering/Visualisasi_PCA_K5.png) |
 
 ---
 
