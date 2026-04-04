@@ -10,7 +10,6 @@ import warnings
 
 # Mengabaikan peringatan untuk kebersihan output
 warnings.filterwarnings('ignore')
-
 # ===========================================================================
 # CRISP-DM TAHAP 1 & 2: BUSINESS & DATA UNDERSTANDING
 # ===========================================================================
