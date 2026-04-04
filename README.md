@@ -77,18 +77,21 @@ Penelitian ini menggunakan kerangka kerja **CRISP-DM** (*Cross-Industry Standard
 
 ## 📊 Hasil Analisis (Preview)
 
-### 1. Visualisasi PCA (Clusters & Boundary)
-| Analisis Titik Terluar (Fokus) | Sebaran Klaster Keseluruhan (PCA) |
-| :---: | :---: |
-| ![PCA Fokus](./clustering/Visualisasi_PCA_Fokus_Indikator%20Batas.png) | ![PCA Standar](./clustering/Visualisasi_PCA_K5.png) |
-
-### 2. Validasi Model & Profiling Centroid
+### 1. Validasi Model & Penentuan K-Optimal 
 | Grafik Elbow (SSE) | Grafik Silhouette Score | Grafik Davies-Bouldin |
 | :---: | :---: | :---: |
 | ![Elbow](./clustering/Grafik_Elbow_Method.png) | ![Silhouette](./clustering/Grafik_Silhouette_Score.png) | ![DBI](./clustering/Grafik_Davies_Bouldin_Index.png) |
 
-#### Karakteristik Klaster (Heatmap Profiling)
+---
+
+### 2. Evaluasi Karakteristik & Visualisasi Sebaran
+#### Profiling Karakteristik Centroid (Heatmap)
 ![Heatmap](./clustering/Grafik_Heatmap_Profiling.png)
+
+#### Sebaran Klaster & Titik Indikator Batas (PCA)
+| Analisis Titik Terluar (Fokus) | Sebaran Klaster Keseluruhan (PCA) |
+| :---: | :---: |
+| ![PCA Fokus](./clustering/Visualisasi_PCA_Fokus_Indikator%20Batas.png) | ![PCA Standar](./clustering/Visualisasi_PCA_K5.png) |
 
 ---
 
