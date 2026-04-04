@@ -66,7 +66,6 @@ Penelitian ini menggunakan kerangka kerja **CRISP-DM** (*Cross-Industry Standard
 3.  **Migrasi Database**:
     ```bash
     python manage.py migrate
-    python manage.py load_data_pemilu.py  # Jika ada skrip import data
     ```
 
 4.  **Jalankan Server**:
