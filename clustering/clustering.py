@@ -152,7 +152,7 @@ plt.xlabel('Jumlah Klaster (K)')
 plt.ylabel('SSE')
 plt.grid(True, alpha=0.3)
 plt.tight_layout()
-#plt.savefig("Grafik_Elbow_Method.png", dpi=300)
+plt.savefig("Grafik_Elbow_Method.png", dpi=300)
 plt.show()
 
 # ===========================================================================
@@ -169,7 +169,7 @@ plt.xlabel('Jumlah Klaster (K)')
 plt.ylabel('Silhouette Score')
 plt.grid(True, alpha=0.3)
 plt.tight_layout()
-#plt.savefig("Grafik_Silhouette_Score.png", dpi=300)
+plt.savefig("Grafik_Silhouette_Score.png", dpi=300)
 plt.show()
 
 # ===========================================================================
@@ -186,7 +186,7 @@ plt.xlabel('Jumlah Klaster (K)')
 plt.ylabel('DBI')
 plt.grid(True, alpha=0.3)
 plt.tight_layout()
-#plt.savefig("Grafik_Davies_Bouldin_Index.png", dpi=300)
+plt.savefig("Grafik_Davies_Bouldin_Index.png", dpi=300)
 plt.show()
 
 # ===========================================================================
@@ -283,7 +283,7 @@ plt.ylabel('Klaster (K)')
 plt.xlabel('Parameter')
 plt.xticks(rotation=45, ha='right')
 plt.tight_layout()
-#plt.savefig("Grafik_Heatmap_Profiling.png", dpi=300)
+plt.savefig("Grafik_Heatmap_Profiling.png", dpi=300)
 plt.show()
 
 # SUB-TAHAP: EKSPOR HASIL PROFILING MULTI-SHEET
